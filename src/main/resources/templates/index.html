@@ -1,5 +1,28 @@
 <html>
+  <head>
+    <script  type="text/javascript" src="assets/jquery-3.2.1.min.js"></script>
+    <script  type="text/javascript" src="assets/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="assets/semantic.min.css"></link>
+  </head>
   <body>
-    Hello
+    <div class="ui container">
+
+      <div class="ui vertical menu">
+
+        <a class="active teal item" href="/contacts/add">
+          Add contact
+        </a>
+
+        <div class="item">
+          <div class="ui transparent icon input">
+            <form action="/contacts/search" method="POST">
+              <input type="text" placeholder="Search contact..."/>
+              <i class="search icon"></i>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </body>
 </html>

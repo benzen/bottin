@@ -18,6 +18,9 @@ public class Api {
   @Autowired
   Repository repository
 
+  @Autowired
+  SearchIndex searchIndex
+
   @RequestMapping(value="", method = RequestMethod.GET, produces="application/json")
   def listContact(){
     def contacts = repository.listContacts()
@@ -31,6 +34,13 @@ public class Api {
                  @RequestParam("organization_name") String organization_name,
                  @RequestParam("notes") String notes){
      def saved_contact = repository.addContact(type, firstname, lastname, organization_name, notes)
+     searchIndex.indexContact(saved_contact)
      new JsonBuilder(saved_contact).toString()
+  }
+
+  @RequestMapping(value="/search", method= RequestMethod.GET, produces="application/json")
+  def searchContact(@RequestParam("query")String query){
+    def hits = searchIndex.searchContact(query)
+    new JsonBuilder(hits).toString()
   }
 }

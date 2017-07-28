@@ -14,9 +14,16 @@
     </parent>
 
     <dependencies>
+
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-core</artifactId>
+        <version>6.5.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-queries</artifactId>
         <version>6.5.1</version>
       </dependency>
 

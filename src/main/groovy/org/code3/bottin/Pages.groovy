@@ -1,6 +1,6 @@
 package org.code3.bottin
 
-// import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 // import org.springframework.web.bind.annotation.ModelAttribute
@@ -12,12 +12,15 @@ import org.springframework.web.bind.annotation.GetMapping
 @Controller
 class Pages {
 
-  // @Autowired
-  // Repository repository
+  @Autowired
+  Repository repository
 
-  // @GetMapping("/")
-  // def index(){
-  //   return "index"
-  // }
+  @Autowired
+  SearchIndex SearchIndex
+
+  @GetMapping("/")
+  def index(){
+    return "index"
+  }
 
 }
