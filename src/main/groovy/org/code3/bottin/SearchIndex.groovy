@@ -54,7 +54,7 @@ public class SearchIndex {
   def indexContact(contact){
     def doc = contactToDocument(contact)
     indexWriter.addDocument(doc)
-    println indexWriter.commit()
+    indexWriter.commit()
 
   }
 
@@ -85,7 +85,7 @@ public class SearchIndex {
     ]}
     directoryReader.close()
 
-    return results
+    results
 
   }
 
