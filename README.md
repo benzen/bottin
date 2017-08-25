@@ -1,9 +1,9 @@
-Run
+Build
 -----------
 
     mvn clean package
 
-Build
+Run
 -----------
 
-    java --jar target/bottin-0.0.1-SNAPSHOT.jar
+    java -jar target/bottin-0.0.1-SNAPSHOT.jar

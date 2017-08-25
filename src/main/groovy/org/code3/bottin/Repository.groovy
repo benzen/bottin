@@ -12,8 +12,8 @@ public class Repository {
   @Autowired
   DataSource datasource
 
-  def select_all_stmt = "select id, type, firstname, lastname, organization_name, notes from contact;"
-  def insert_stmt = "insert into contact (type, firstname, lastname, organization_name, notes) values (?, ?, ?, ?, ?);"
+  def select_all_stmt = "select id, type_organization, firstname, lastname, organization_name, notes from contact;"
+  def insert_stmt = "insert into contact (type_organization, firstname, lastname, organization_name, notes) values (?, ?, ?, ?, ?);"
 
   def listContacts() {
 
@@ -27,6 +27,7 @@ public class Repository {
       while( rs.next() ) {
         def contact = [
           id: rs.getInt("id"),
+          type_organization: rs.getBoolean("type_organization"),
           firstname: rs.getString("firstname"),
           lastname: rs.getString("lastname"),
           organization_name: rs.getString("organization_name"),
@@ -38,15 +39,15 @@ public class Repository {
     }
   }
 
-  def addContact(String type, String firstname, String lastname, String organization_name, String notes){
+  def addContact(Contact contact){
     withConnection { connection ->
 
       def insert_prepared_stmt = connection.prepareStatement(insert_stmt, Statement.RETURN_GENERATED_KEYS)
-      insert_prepared_stmt.setString(1, type)
-      insert_prepared_stmt.setString(2, firstname)
-      insert_prepared_stmt.setString(3, lastname)
-      insert_prepared_stmt.setString(4, organization_name)
-      insert_prepared_stmt.setString(5, notes)
+      insert_prepared_stmt.setBoolean(1, contact.type_organization)
+      insert_prepared_stmt.setString(2, contact.firstname)
+      insert_prepared_stmt.setString(3, contact.lastname)
+      insert_prepared_stmt.setString(4, contact.organization_name)
+      insert_prepared_stmt.setString(5, contact.notes)
 
       insert_prepared_stmt.execute()
       def rs = insert_prepared_stmt.getGeneratedKeys()
@@ -54,10 +55,11 @@ public class Repository {
       if( rs.next() ) {
         saved_contact = [
           id: rs.getInt("id"),
-          firstname: firstname,
-          lastname: lastname,
-          organization_name: organization_name,
-          notes: notes
+          type_organization: contact.type_organization,
+          firstname: contact.firstname,
+          lastname: contact.lastname,
+          organization_name: contact.organization_name,
+          notes: contact.notes
         ]
       }
       saved_contact

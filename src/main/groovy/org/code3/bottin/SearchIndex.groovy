@@ -42,39 +42,38 @@ public class SearchIndex {
     indexWriter.close()
   }
 
-  //TODO field of document should be poped out in map just to get a normal api
   def searchContact(searchQuery){
     BooleanQuery.Builder bqb = new BooleanQuery.Builder()
     bqb.add(new FuzzyQuery(new Term("firstname", searchQuery)), BooleanClause.Occur.SHOULD)
     bqb.add(new FuzzyQuery(new Term("lastname", searchQuery)), BooleanClause.Occur.SHOULD)
-    // bqb.add(new FuzzyQuery(new Term("type", searchQuery)), BooleanClause.Occur.SHOULD)
+    bqb.add(new FuzzyQuery(new Term("type_organization", searchQuery)), BooleanClause.Occur.SHOULD)
     bqb.add(new FuzzyQuery(new Term("organization_name", searchQuery)), BooleanClause.Occur.SHOULD)
     bqb.add(new FuzzyQuery(new Term("notes", searchQuery)), BooleanClause.Occur.SHOULD)
     Query q = bqb.build()
 
     def indexSearcher =  new IndexSearcher(DirectoryReader.open(index))
     def hits = indexSearcher.search(q, 100).scoreDocs
-    hits.collect {
-      [
+    println "hits $hits.size()"
+    hits.collect {[
       score: it.score,
       document: documentToContact(indexSearcher.doc(it.doc))
     ]}
   }
 
   def documentToContact(doc){
-    [
+    def contact = new Contact([
       firstname: doc.get("firstname"),
       lastname: doc.get("lastname"),
-      type: doc.get("type"),
+      type: doc.get("type_organization"),
       notes: doc.get("notes"),
       organization_name: doc.get("organization_name")
-    ]
+    ])
   }
   def contactToDocument(contact) {
     Document doc = new Document()
     doc.add(new TextField("firstname", contact.firstname, Field.Store.YES))
     doc.add(new TextField("lastname", contact.lastname, Field.Store.YES))
-    // doc.add(new TextField("type", contact.type, Field.Store.YES))
+    doc.add(new TextField("type_organization", contact.type, Field.Store.YES))
     doc.add(new TextField("organization_name", contact.organization_name, Field.Store.YES))
     doc.add(new TextField("notes", contact.notes, Field.Store.YES))
     doc

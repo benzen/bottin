@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.4.RELEASE</version>
+        <version>1.5.6.RELEASE</version>
     </parent>
 
     <dependencies>
@@ -52,11 +52,13 @@
         <artifactId>flyway-core</artifactId>
         <version>3.0</version>
       </dependency>
+
       <dependency>
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
         <version>9.4-1206-jdbc42</version>
       </dependency>
+
     </dependencies>
     <build>
     <plugins>

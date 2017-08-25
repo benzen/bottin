@@ -1,0 +1,59 @@
+<html>
+  <head th:include="head">
+  </head>
+  <body>
+    <div class="ui container">
+      <div class="ui grid">
+        <div class="row">
+          <div class="ui hidden divider"></div>
+        </div>
+        <div class="three wide column">
+          <div th:include="menu"></div>
+        </div>
+
+        <div class="ten wide column centered">
+          <form class="ui form" action="/contacts/add" method="POST" th:object="${contact}">
+
+            <div class="field">
+              <div class="ui slider checkbox">
+                <input type="checkbox" th:field="*{type_organization}" tabindex="0" class="hidden"/>
+                <label>Organization</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="firstname">Firstname</label>
+              <input type="text" th:field="*{firstname}"/>
+            </div>
+
+            <div class="field">
+              <label for="lastname">Lastname</label>
+              <input type="text" th:field="*{lastname}"/>
+            </div>
+
+            <div class="field">
+              <label for="organization_name">Organization name</label>
+              <input type="text" th:field="*{organization_name}"/>
+            </div>
+
+            <div class="field">
+              <label for="notes">Notes</label>
+              <textarea th:field="*{notes}"/>
+            </div>
+
+            <button class="ui button basic left floated">
+              Cancel
+            </button>
+
+            <input class="ui button primary right floated" type="submit" value="Save"/>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+    <script>
+      $('.ui.checkbox').checkbox()
+    </script>
+  </body>
+</html>

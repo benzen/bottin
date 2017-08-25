@@ -28,7 +28,7 @@ public class Api {
   }
 
   @RequestMapping(value="", method = RequestMethod.POST, produces="application/json")
-  def addContact(@RequestParam("type") String type,
+  def addContact(@RequestParam("type_organization") Boolean type_organization,
                  @RequestParam("firstname") String firstname,
                  @RequestParam("lastname") String lastname,
                  @RequestParam("organization_name") String organization_name,
