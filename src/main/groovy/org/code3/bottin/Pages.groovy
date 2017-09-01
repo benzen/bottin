@@ -24,7 +24,9 @@ class Pages {
   @GetMapping("/contacts/list")
   def contacts_list(ModelMap model){
     def contactsSearch = searchIndex.searchContact("*")
-    model.addAttribute("contacts", contactsSearch)
+    def contacts = contactsSearch.collect {it.document}
+
+    model.addAttribute("contacts", contacts)
     return "contacts_list"
   }
 
@@ -37,8 +39,8 @@ class Pages {
 
   @PostMapping("/contacts/add")
   def contact_create(@ModelAttribute("contact") Contact contact){
-    repository.addContact(contact)
-    searchIndex.indexContact(contact)
+    def saved_contact = repository.addContact(contact)
+    searchIndex.indexContact(saved_contact)
     "redirect:/"
   }
 

@@ -9,6 +9,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.document.Document
 import org.apache.lucene.document.Field
 import org.apache.lucene.document.TextField
+import org.apache.lucene.document.StoredField
 import org.apache.lucene.index.IndexWriter
 import org.apache.lucene.search.IndexSearcher
 import org.apache.lucene.search.Query
@@ -48,14 +49,12 @@ public class SearchIndex {
   @PreDestroy
   def preDestroy(){
     indexWriter.close()
-
   }
 
   def indexContact(contact){
     def doc = contactToDocument(contact)
     indexWriter.addDocument(doc)
     indexWriter.commit()
-
   }
 
   def defaultQuery(){
@@ -90,7 +89,8 @@ public class SearchIndex {
   }
 
   def documentToContact(doc){
-    def contact = new Contact([
+    new Contact([
+      id: doc.get("id"),
       firstname: doc.get("firstname"),
       lastname: doc.get("lastname"),
       type_organization: doc.get("type_organization") == "true",
@@ -101,6 +101,7 @@ public class SearchIndex {
 
   def contactToDocument(contact) {
     Document doc = new Document()
+    doc.add(new StoredField("id", contact.id))
     doc.add(new TextField("firstname", contact.firstname, Field.Store.YES))
     doc.add(new TextField("lastname", contact.lastname, Field.Store.YES))
     doc.add(new TextField("type_organization", contact.type_organization ? "true" : "false", Field.Store.YES))
