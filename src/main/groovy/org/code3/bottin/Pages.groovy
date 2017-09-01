@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.ui.ModelMap
 import org.springframework.web.bind.annotation.ModelAttribute
-
+import org.springframework.web.bind.annotation.PathVariable
 
 @Controller
 class Pages {
@@ -44,6 +44,13 @@ class Pages {
     "redirect:/"
   }
 
+  @GetMapping("/contacts/{contact_id}/show")
+  def contact_show(ModelMap modelmap, @PathVariable Long contact_id){
+    def contact = repository.getContact(contact_id)
+    modelmap.addAttribute("contact", contact)
+    "contacts_show"
+
+  }
 
 
 }

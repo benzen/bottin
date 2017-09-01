@@ -1,0 +1,41 @@
+<html>
+  <head th:include="head">
+  </head>
+  <body>
+    <div class="ui container">
+      <div class="ui grid">
+        <div class="row">
+          <div class="ui hidden divider"></div>
+        </div>
+        <div class="three wide column">
+          <div th:include="menu"></div>
+        </div>
+
+        <div class="ten wide column centered">
+
+
+          <div class="ui image label" th:unless="${contact.type_organization}">
+            <img src="/assets/images/avatars/male/13.png"/>
+            <span th:text="${contact.firstname}"></span>
+            <span th:text="${contact.lastname}"></span>
+            <div class="detail" th:text="${contact.organization_name}" th:unless="${#strings.isEmpty(contact.organization_name)}"></div>
+          </div>
+          <div class="ui image label" th:if="${contact.type_organization}">
+            <div class="detail" th:text="${contact.organization_name}"></div>
+          </div>
+
+          <div class="ui comments">
+            <div class="comment">
+              <div class="content">
+                <div class="text" th:text="${contact.notes}"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </body>
+</html>

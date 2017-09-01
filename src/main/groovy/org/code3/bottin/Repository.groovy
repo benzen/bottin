@@ -13,7 +13,8 @@ public class Repository {
   DataSource datasource
 
   def select_all_stmt = "select id, type_organization, firstname, lastname, organization_name, notes from contact;"
-  def insert_stmt = "insert into contact (type_organization, firstname, lastname, organization_name, notes) values (?, ?, ?, ?, ?);"
+  def insert_stmt = "insert into contact (type_organization, firstname, lastname, organization_name, notes) values (?, ?, ?, ?, ?) ;"
+  def get_by_id_stmt = "select id, type_organization, firstname, lastname, organization_name, notes from contact where id = ?; "
 
   def listContacts() {
 
@@ -38,7 +39,6 @@ public class Repository {
       contacts
     }
   }
-
   def addContact(Contact contact){
     withConnection { connection ->
 
@@ -51,18 +51,24 @@ public class Repository {
 
       insert_prepared_stmt.execute()
       def rs = insert_prepared_stmt.getGeneratedKeys()
-      def saved_contact = [:]
-      if( rs.next() ) {
-        saved_contact = [
-          id: rs.getInt("id"),
-          type_organization: contact.type_organization,
-          firstname: contact.firstname,
-          lastname: contact.lastname,
-          organization_name: contact.organization_name,
-          notes: contact.notes
-        ]
+      def saved_contact = new Contact()
+      if( !rs.next() ) {
+        throw new Exception("Failed to save a contact")
       }
-      saved_contact
+      return resultSetToContact(rs)
+
+    }
+  }
+  def getContact(Long contact_id){
+    withConnection { connection ->
+      def get_by_id_prepared_stmt = connection.prepareStatement get_by_id_stmt
+      get_by_id_prepared_stmt.setLong(1, contact_id)
+      get_by_id_prepared_stmt.executeQuery()
+      def rs = get_by_id_prepared_stmt.getResultSet()
+      if(!rs.next()){
+        throw new Exception("Contact not found")
+      }
+      return resultSetToContact(rs)
     }
   }
 
@@ -75,5 +81,15 @@ public class Repository {
     finally {
       connection?.close()
     }
+  }
+  def resultSetToContact(rs){
+    new Contact([
+      id: rs.getLong("id"),
+      type_organization: rs.getBoolean("type_organization"),
+      firstname: rs.getString("firstname"),
+      lastname: rs.getString("lastname"),
+      organization_name: rs.getString("organization_name"),
+      notes: rs.getString("notes")
+    ])
   }
 }

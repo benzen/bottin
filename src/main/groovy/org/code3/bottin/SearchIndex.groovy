@@ -90,7 +90,7 @@ public class SearchIndex {
 
   def documentToContact(doc){
     new Contact([
-      id: doc.get("id"),
+      id: Long.parseLong(doc.get("id")),
       firstname: doc.get("firstname"),
       lastname: doc.get("lastname"),
       type_organization: doc.get("type_organization") == "true",
