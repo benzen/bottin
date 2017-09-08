@@ -15,13 +15,13 @@
 
 
           <div class="ui image label" th:unless="${contact.type_organization}">
-            <img src="/assets/images/avatars/male/13.png"/>
+            <img th:with="url=${#strings.defaultString(contact.avatar_url, '/assets/images/avatars/default.png')}" th:src="@{${url}}"/>
             <span th:text="${contact.firstname}"></span>
             <span th:text="${contact.lastname}"></span>
             <div class="detail" th:text="${contact.organization_name}" th:unless="${#strings.isEmpty(contact.organization_name)}"></div>
           </div>
           <div class="ui image label" th:if="${contact.type_organization}">
-            <div class="detail" th:text="${contact.organization_name}"></div>
+          <div class="detail" th:text="${contact.organization_name}"></div>
           </div>
 
           <div class="ui comments">

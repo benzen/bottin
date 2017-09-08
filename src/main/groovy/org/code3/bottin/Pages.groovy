@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.ui.ModelMap
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 class Pages {
@@ -24,6 +25,17 @@ class Pages {
   @GetMapping("/contacts/list")
   def contacts_list(ModelMap model){
     def contactsSearch = searchIndex.searchContact("*")
+    def contacts = contactsSearch.collect {it.document}
+
+    model.addAttribute("contacts", contacts)
+    return "contacts_list"
+  }
+
+  @PostMapping("/contacts/search")
+  def contacts_search(ModelMap model, @RequestParam("query") String query){
+    println query
+
+    def contactsSearch = searchIndex.searchContact(query)
     def contacts = contactsSearch.collect {it.document}
 
     model.addAttribute("contacts", contacts)

@@ -15,9 +15,9 @@
 
         <div class="ten wide column centered">
           <div  th:if="${#lists.isEmpty(contacts)}" class="ui center aligned container">
-            <div class="ui disabled">No contacts yet.</div>
+            <div class="ui disabled">Didn't found the contact you are looking for ?</div>
             <br/>
-            <a href="/contacts/new">Add one now</a>
+            <a href="/contacts/new">Add it now !</a>
           </div>
           <div class="ui list">
             <div class="item" th:each="contact : ${contacts}">
