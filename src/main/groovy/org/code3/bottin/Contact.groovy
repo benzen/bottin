@@ -7,4 +7,5 @@ public class Contact {
   String lastname
   String organization_name
   String notes
+  String avatar_url
 }

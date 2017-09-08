@@ -43,7 +43,7 @@
 
             <div class="field">
               <label for="avatar">Avatar</label>
-              <input type="hidden" name="avatar" value=""/>
+              <input type="hidden" th:field="*{avatar_url}" value=""/>
               <div class="ui grid">
                 <div class="ui row">
                   <div class="five wide column">
@@ -89,12 +89,12 @@
         }
       }
       const selectAvatar = ({target}) => {
-        const avatar_url = target.src
-        $("[name='avatar']").val(avatar_url)
+        const avatar_url = $(target).attr("src")
+        $("[name='avatar_url']").val(avatar_url)
         $("#avatar-view").attr("src", avatar_url)
       }
       const resetAvatar = () => {
-        $("[name='avatar']").val('')
+        $("[name='avatar_url']").val('')
         $("#avatar-view").attr("src", $("#avatar-view").attr("data-default-src"))
 
       }

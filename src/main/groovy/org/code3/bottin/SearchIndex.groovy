@@ -42,7 +42,8 @@ public class SearchIndex {
     config = new IndexWriterConfig(analyzer)
     config.openMode = OpenMode.CREATE_OR_APPEND
     indexWriter = new IndexWriter(index, config)
-    indexWriter.commit() // XXX done in order to ensure that the index is created
+    // XXX done in order to ensure that the index is created
+    indexWriter.commit()
 
   }
 
@@ -95,7 +96,8 @@ public class SearchIndex {
       lastname: doc.get("lastname"),
       type_organization: doc.get("type_organization") == "true",
       notes: doc.get("notes"),
-      organization_name: doc.get("organization_name")
+      organization_name: doc.get("organization_name"),
+      avatar_url: doc.get("avatar_url")
     ])
   }
 
@@ -107,6 +109,7 @@ public class SearchIndex {
     doc.add(new TextField("type_organization", contact.type_organization ? "true" : "false", Field.Store.YES))
     doc.add(new TextField("organization_name", contact.organization_name, Field.Store.YES))
     doc.add(new TextField("notes", contact.notes, Field.Store.YES))
+    doc.add(new StoredField("avatar_url", contact.avatar_url))
     doc
   }
 }

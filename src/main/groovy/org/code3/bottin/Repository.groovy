@@ -12,9 +12,9 @@ public class Repository {
   @Autowired
   DataSource datasource
 
-  def select_all_stmt = "select id, type_organization, firstname, lastname, organization_name, notes from contact;"
-  def insert_stmt = "insert into contact (type_organization, firstname, lastname, organization_name, notes) values (?, ?, ?, ?, ?) ;"
-  def get_by_id_stmt = "select id, type_organization, firstname, lastname, organization_name, notes from contact where id = ?; "
+  def select_all_stmt = "select id, type_organization, firstname, lastname, organization_name, notes, avatar_url from contact;"
+  def insert_stmt = "insert into contact (type_organization, firstname, lastname, organization_name, notes, avatar_url) values (?, ?, ?, ?, ?, ?) ;"
+  def get_by_id_stmt = "select id, type_organization, firstname, lastname, organization_name, notes, avatar_url from contact where id = ?; "
 
   def listContacts() {
 
@@ -48,6 +48,7 @@ public class Repository {
       insert_prepared_stmt.setString(3, contact.lastname)
       insert_prepared_stmt.setString(4, contact.organization_name)
       insert_prepared_stmt.setString(5, contact.notes)
+      insert_prepared_stmt.setString(6, contact.avatar_url)
 
       insert_prepared_stmt.execute()
       def rs = insert_prepared_stmt.getGeneratedKeys()
@@ -89,7 +90,8 @@ public class Repository {
       firstname: rs.getString("firstname"),
       lastname: rs.getString("lastname"),
       organization_name: rs.getString("organization_name"),
-      notes: rs.getString("notes")
+      notes: rs.getString("notes"),
+      avatar_url: rs.getString("avatar_url")
     ])
   }
 }
