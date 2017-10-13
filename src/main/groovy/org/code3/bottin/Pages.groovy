@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 
+
 @Controller
 class Pages {
 
@@ -28,25 +29,23 @@ class Pages {
     def contacts = contactsSearch.collect {it.document}
 
     model.addAttribute("contacts", contacts)
-    return "contacts_list"
+    return "contacts/list"
   }
 
   @PostMapping("/contacts/search")
   def contacts_search(ModelMap model, @RequestParam("query") String query){
-    println query
 
     def contactsSearch = searchIndex.searchContact(query)
     def contacts = contactsSearch.collect {it.document}
 
     model.addAttribute("contacts", contacts)
-    return "contacts_list"
+    return "contacts/list"
   }
-
 
   @GetMapping("/contacts/new")
   def contacts_new(ModelMap model){
     model.addAttribute("contact", new Contact())
-    return "contacts_new"
+    return "contacts/new"
   }
 
   @PostMapping("/contacts/add")
@@ -60,7 +59,28 @@ class Pages {
   def contact_show(ModelMap modelmap, @PathVariable Long contact_id){
     def contact = repository.getContact(contact_id)
     modelmap.addAttribute("contact", contact)
-    "contacts_show"
+    "contacts/show"
+
+  }
+
+  @GetMapping("/contacts/{contact_id}/edit")
+  def contact_edit(ModelMap modelMap, @PathVariable Long contact_id, @RequestParam(value="add", required=false) String addField){
+    def contact = repository.getContact(contact_id)
+
+
+    if(addField == "telephone"){
+      contact.telephones = contact.telephones ?: []
+      contact.telephones.add( new Telephone())
+    }else if (addField == "address"){
+      contact.addresses = contact.addresses ?: []
+      contact.addresses.add(new Address())
+    }else if (addField == "email") {
+      contact.emails =  contact.emails ?: []
+      contact.emails.add(new Email())
+    }
+    modelMap.addAttribute("contact", contact)
+
+    "contacts/edit"
 
   }
 

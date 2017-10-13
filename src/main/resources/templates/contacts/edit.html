@@ -1,0 +1,152 @@
+<html>
+  <head th:include="head">
+  </head>
+  <body>
+    <div class="ui container">
+      <div class="ui grid">
+        <div class="row">
+          <div class="ui hidden divider"></div>
+        </div>
+        <div class="three wide column">
+          <div th:include="menu"></div>
+        </div>
+
+        <div class="ten wide column centered">
+          <form class="ui form" action="/contacts/add" method="POST" th:object="${contact}">
+
+            <div class="field">
+              <div class="ui slider checkbox">
+                <input type="checkbox" th:field="*{type_organization}" tabindex="0" class="hidden"/>
+                <label>Organization</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="firstname">Firstname</label>
+              <input type="text" th:field="*{firstname}"/>
+            </div>
+
+            <div class="field">
+              <label for="lastname">Lastname</label>
+              <input type="text" th:field="*{lastname}"/>
+            </div>
+
+            <div class="field">
+              <label for="organization_name">Organization name</label>
+              <input type="text" th:field="*{organization_name}"/>
+            </div>
+
+            <div class="field">
+              <label for="notes">Notes</label>
+              <textarea th:field="*{notes}"/>
+            </div>
+
+            <div class="field">
+              <label for="avatar">Avatar</label>
+              <input type="hidden" th:field="*{avatar_url}" value=""/>
+              <div class="ui grid">
+                <div class="ui row">
+                  <div class="five wide column">
+                    <img id="avatar-view" class="ui medium image" th:src="@{/assets/images/avatars/default.png}" style="margin-top: 42px;" data-default-src="/assets/images/avatars/default.png"/>
+                  </div>
+                  <div class="eleven wide column">
+                    <div class="ui buttons"  style="margin-bottom: 6px">
+                      <div class="ui blue button" id="male-button">Male</div>
+                      <div class="or"></div>
+                      <div class="ui pink button" id="female-button">Female</div>
+                    </div>
+
+                    <div class="ui tiny images" style="overflow-y: scroll; height: 200px">
+                      <img class="ui image male-avatar" th:src="@{/assets/images/avatars/male/{male_index}.png(male_index=${male_index})}" th:each="male_index: ${#numbers.sequence(1, 129)}"/>
+                      <img class="ui image female-avatar" th:src="@{/assets/images/avatars/female/{female_index}.png(female_index=${female_index})}" th:each="female_index: ${#numbers.sequence(1, 114)}"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Addresses -->
+            <div class="ui horizontal divider"/>
+
+            <div class="field">
+
+            </div>
+
+            <!-- Telephones -->
+            <div class="ui horizontal divider"/>
+            <div class="ui h1" th:unless="${#arrays.isEmpty(contact.telephones)}">
+              Telephones
+            </div>
+            <div class="field" th:each="tel,rowStat : *{telephones}">
+              <div class="tow fields">
+                <div class="ui selection dropdown">
+                  <input type="hidden" th:field="*{telephones[__${rowStat.index}__].type}"/>
+                  <i class="dropdown icon"></i>
+                  <div class="default text">Type</div>
+                  <div class="menu">
+                    <div class="item" data-value="H">Home</div>
+                    <div class="item" data-value="W">Work</div>
+                  </div>
+                </div>
+
+                <input type="text" th:field="*{telephones[__${rowStat.index}__].number}"/>
+              </div>
+            </div>
+
+            <!-- Emails -->
+            <div class="ui horizontal divider"/>
+
+            <div class="field">
+
+            </div>
+
+
+            <div class="ui basic dropdown left floated default icon button">
+              <i class="plus icon"/>
+              <div class="menu">
+                <a class="item" th:href="@{/contacts/{contactId}/edit?add={field}(contactId=${contact.id}, field='address')}">Address</a>
+                <a class="item" th:href="@{/contacts/{contactId}/edit?add={field}(contactId=${contact.id}, field='telephone')}">Telephone</a>
+                <a class="item" th:href="@{/contacts/{contactId}/edit?add={field}(contactId=${contact.id}, field='email')}">Email</a>
+              </div>
+            </div>
+
+            <input class="ui button primary right floated" type="submit" value="Save"/>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+    <script>
+      const toggleMalePane = (show) => {
+        if(show){
+          $('.male-avatar').show()
+          $(".female-avatar").hide()
+        } else {
+          $('.male-avatar').hide()
+          $(".female-avatar").show()
+        }
+      }
+      const selectAvatar = ({target}) => {
+        const avatar_url = $(target).attr("src")
+        $("[name='avatar_url']").val(avatar_url)
+        $("#avatar-view").attr("src", avatar_url)
+      }
+      const resetAvatar = () => {
+        $("[name='avatar_url']").val('')
+        $("#avatar-view").attr("src", $("#avatar-view").attr("data-default-src"))
+
+      }
+      $('#male-button').click( _ => toggleMalePane(true) )
+      $('#female-button').click( _ => toggleMalePane(false) )
+      $(".male-avatar").click( selectAvatar )
+      $(".female-avatar").click( selectAvatar )
+      $('#avatar-view').click(resetAvatar)
+
+      toggleMalePane(false);
+      $('.dropdown').dropdown();
+
+
+    </script>
+  </body>
+</html>
