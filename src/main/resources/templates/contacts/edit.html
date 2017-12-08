@@ -70,16 +70,72 @@
 
             <!-- Addresses -->
             <div class="ui horizontal divider"/>
+            <h1 class="ui" th:unless="${#arrays.isEmpty(contact.addresses)}">
+              Addresses
+            </h1>
+            <div th:each="address,rowStat : *{addresses}">
+              <div class="row fields">
+                <input type="hidden" th:field="*{addresses[__${rowStat.index}__].id}"/>
+                <!-- <div class="ui selection dropdown">
+                  <input type="hidden" th:field="*{addresses[__${rowStat.index}__].type}"/>
+                  <i class="dropdown icon"></i>
+                  <div class="default text">Type</div>
+                  <div class="menu">
+                    <div class="item" data-value="H">Home</div>
+                    <div class="item" data-value="W">Work</div>
+                  </div>
+                </div> -->
+              </div>
 
-            <div class="field">
+              <div class="field">
+                <label>Address</label>
+                <div class="fields">
+                  <div class="three wide field">
+                    <input type="text" th:field="*{addresses[__${rowStat.index}__].unit}" placeholder="Unit"/>
+                  </div>
+                  <div class="thirteen wide field">
+                    <input type="text" th:field="*{addresses[__${rowStat.index}__].street}" placeholder="Street"/>
+                  </div>
+                </div>
+              </div>
+              <div class="fields">
+                <div class="twelve wide field">
+                  <label>Locality</label>
+                  <input type="text" th:field="*{addresses[__${rowStat.index}__].locality}" placeholder="Locality"/>
+                </div>
+                <div class="four wide field">
+                  <label>Region</label>
+                  <input type="text" th:field="*{addresses[__${rowStat.index}__].region_code}" placeholder="Region"/>
+                </div>
+              </div>
+              <div class="three fields">
+                <div class="field">
+                  <label>Postal code</label>
+                  <input type="text" th:field="*{addresses[__${rowStat.index}__].postal_code}" placeholder="Postal code"/>
+                </div>
+                <div class="field">
+                  <label>PO box</label>
+                  <input type="text" th:field="*{addresses[__${rowStat.index}__].pobox}" placeholder="PO box"/>
+                </div>
+                <div class="field">
+                  <label>Country</label>
+                  <input type="text" th:field="*{addresses[__${rowStat.index}__].country_code}" placeholder="Country"/>
+                </div>
+              </div>
+              <div class="field">
+                <label>Delivery Information</label>
+                <input type="text" th:field="*{addresses[__${rowStat.index}__].delivery_info}" placeholder="Develivery information"/>
+              </div>
 
             </div>
+
+
 
             <!-- Telephones -->
             <div class="ui horizontal divider"/>
-            <div class="ui h1" th:unless="${#arrays.isEmpty(contact.telephones)}">
+            <h1 class="ui" th:unless="${#arrays.isEmpty(contact.telephones)}">
               Telephones
-            </div>
+            </h1>
             <div class="field" th:each="tel,rowStat : *{telephones}">
               <div class="row fields">
                 <input type="hidden" th:field="*{telephones[__${rowStat.index}__].id}"/>
@@ -100,10 +156,10 @@
             <!-- Emails -->
             <div class="ui horizontal divider"/>
 
-            <div class="ui h1" th:unless="${#arrays.isEmpty(contact.emails)}">
+            <h1 class="ui" th:unless="${#arrays.isEmpty(contact.emails)}">
               Emails
-            </div>
-            <div class="field" th:each="tel,rowStat : *{emails}">
+            </h1>
+            <div class="field" th:each="email,rowStat : *{emails}">
               <div class="row fields">
                 <input type="hidden" th:field="*{emails[__${rowStat.index}__].id}"/>
                 <div class="ui selection dropdown">

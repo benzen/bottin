@@ -93,7 +93,7 @@ class Pages {
       println e
       modelMap.addAttribute("contact", contact)
       modelMap.addAttribute("error", "Fuck men")
-      "contacts/edit"
+      "redirect:/contacts/$contact_id/edit"
     }
 
 

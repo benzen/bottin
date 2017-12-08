@@ -107,6 +107,53 @@ public class Repository {
       contact_id = ?;
   """
 
+  def get_addresses_by_contact_id_stmt = """
+    select
+      id,
+      type,
+      unit,
+      street,
+      locality,
+      region_code,
+      pobox,
+      postal_code,
+      country_code,
+      delivery_info
+    from address
+    where contact_id = ?
+    order by index;
+  """
+  def insert_address_stmt = """
+    insert into address (
+      type,
+      unit,
+      street,
+      locality,
+      region_code,
+      pobox,
+      postal_code,
+      country_code,
+      delivery_info,
+      index,
+      contact_id
+    ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ;
+  """
+  def update_address_stmt = """
+    update address set
+      type = ?,
+      unit = ?,
+      street = ?,
+      locality = ?,
+      region_code = ?,
+      pobox = ?,
+      postal_code = ?,
+      country_code = ?,
+      delivery_info = ?
+      where
+      index = ? and
+      contact_id = ?;
+  """
+
   def listContacts() {
 
     withConnection { connection ->
@@ -163,6 +210,7 @@ public class Repository {
       def contact = rsToContact(rs)
       contact.telephones = getContactTelephones(connection, contact_id)
       contact.emails = getContactEmails(connection, contact_id)
+      contact.addresses = getContactAddresses(connection, contact_id)
       return contact
     }
   }
@@ -180,6 +228,7 @@ public class Repository {
       if(nb_row_updated > 0){
         updateContactTelephones(connection, contact_id, contact.telephones)
         updateContactEmails(connection, contact_id, contact.emails)
+        updateContactAddresses(connection, contact_id, contact.addresses)
       }
 
     }
@@ -226,7 +275,6 @@ public class Repository {
     def rs = get_emails_by_contact_id_prepared_stmt.resultSet
     rsToEmails(rs)
   }
-
   def updateContactEmails(connection, long contact_id, emails){
     emails.eachWithIndex { email, index ->
       if(email.id) {
@@ -236,7 +284,6 @@ public class Repository {
       }
     }
   }
-
   def updateContactEmail(connection, contact_id, index, email){
     def update_email_prepared_stmt = connection.prepareStatement update_email_stmt
     update_email_prepared_stmt.setString(1, email.type)
@@ -254,6 +301,56 @@ public class Repository {
     insert_email_prepared_stmt.setLong(4, contact_id)
     insert_email_prepared_stmt.executeUpdate()
   }
+
+
+  def getContactAddresses(connection, long contact_id){
+    def get_addresses_by_contact_id_prepared_stmt = connection.prepareStatement get_addresses_by_contact_id_stmt
+    get_addresses_by_contact_id_prepared_stmt.setLong(1, contact_id)
+    get_addresses_by_contact_id_prepared_stmt.executeQuery()
+    def rs = get_addresses_by_contact_id_prepared_stmt.resultSet
+    rsToAddresses(rs)
+  }
+  def updateContactAddresses(connection, long contact_id, addresses){
+    addresses.eachWithIndex { address, index ->
+      if(address.id) {
+        updateContactAddress(connection, contact_id, index, address)
+      } else {
+        insertContactAddress(connection, contact_id, index, address)
+      }
+    }
+  }
+  def updateContactAddress(connection, contact_id, index, address){
+    def update_address_prepared_stmt = connection.prepareStatement update_address_stmt
+    update_address_prepared_stmt.setString(1, address.type)
+    update_address_prepared_stmt.setString(2, address.unit)
+    update_address_prepared_stmt.setString(3, address.street)
+    update_address_prepared_stmt.setString(4, address.locality)
+    update_address_prepared_stmt.setString(5, address.region_code)
+    update_address_prepared_stmt.setString(6, address.pobox)
+    update_address_prepared_stmt.setString(7, address.postal_code)
+    update_address_prepared_stmt.setString(8, address.country_code)
+    update_address_prepared_stmt.setString(9, address.delivery_info)
+    update_address_prepared_stmt.setLong(10, index)
+    update_address_prepared_stmt.setLong(11, contact_id)
+
+    update_address_prepared_stmt.executeUpdate()
+  }
+  def insertContactAddress(connection, contact_id, index, address){
+    def insert_address_prepared_stmt = connection.prepareStatement insert_address_stmt
+    insert_address_prepared_stmt.setString(1, address.type)
+    insert_address_prepared_stmt.setString(2, address.unit)
+    insert_address_prepared_stmt.setString(3, address.street)
+    insert_address_prepared_stmt.setString(4, address.locality)
+    insert_address_prepared_stmt.setString(5, address.region_code)
+    insert_address_prepared_stmt.setString(6, address.pobox)
+    insert_address_prepared_stmt.setString(7, address.postal_code)
+    insert_address_prepared_stmt.setString(8, address.country_code)
+    insert_address_prepared_stmt.setString(9, address.delivery_info)
+    insert_address_prepared_stmt.setLong(10, index)
+    insert_address_prepared_stmt.setLong(11, contact_id)
+    insert_address_prepared_stmt.executeUpdate()
+  }
+
 
   def withConnection(closure){
     def connection
@@ -300,6 +397,26 @@ public class Repository {
       emails.add(email)
     }
     emails
+  }
+
+  def rsToAddresses(rs){
+    def addresses = []
+    while(rs.next()){
+      def address = new Address([
+        id: rs.getLong("id"),
+        type: rs.getString("type"),
+        unit: rs.getString("unit"),
+        street: rs.getString("street"),
+        locality: rs.getString("locality"),
+        region_code: rs.getString("region_code"),
+        pobox: rs.getString("pobox"),
+        postal_code: rs.getString("postal_code"),
+        country_code: rs.getString("country_code"),
+        delivery_info: rs.getString("delivery_info"),
+      ])
+      addresses.add(address)
+    }
+    addresses
   }
 
 
