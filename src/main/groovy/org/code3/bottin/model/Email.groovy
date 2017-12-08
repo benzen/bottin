@@ -1,4 +1,5 @@
 class Email {
- String address
- String type
+  Long id
+  String address
+  String type
 }

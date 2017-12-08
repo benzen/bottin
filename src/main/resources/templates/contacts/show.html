@@ -32,12 +32,21 @@
             </div>
           </div>
           <div class="ui row">
-
+            <h1 th:unless="${#arrays.isEmpty(contact.telephones)}">Telephones</h1>
             <div th:each="telephone : ${contact.telephones}" class="ui label">
               <span th:text="${telephone.type}"></span>
               <div class="detail" th:text="${telephone.number}"></div>
             </div>
           </div>
+
+          <div class="ui row">
+            <h1 th:unless="${#arrays.isEmpty(contact.emails)}">Emails</h1>
+            <div th:each="email : ${contact.emails}" class="ui label">
+              <span th:text="${email.type}"></span>
+              <div class="detail" th:text="${email.address}"></div>
+            </div>
+          </div>
+
           <div class="ui row">
 
             <div class="ui buttons right floated">

@@ -100,8 +100,24 @@
             <!-- Emails -->
             <div class="ui horizontal divider"/>
 
-            <div class="field">
+            <div class="ui h1" th:unless="${#arrays.isEmpty(contact.emails)}">
+              Emails
+            </div>
+            <div class="field" th:each="tel,rowStat : *{emails}">
+              <div class="row fields">
+                <input type="hidden" th:field="*{emails[__${rowStat.index}__].id}"/>
+                <div class="ui selection dropdown">
+                  <input type="hidden" th:field="*{emails[__${rowStat.index}__].type}"/>
+                  <i class="dropdown icon"></i>
+                  <div class="default text">Type</div>
+                  <div class="menu">
+                    <div class="item" data-value="H">Home</div>
+                    <div class="item" data-value="W">Work</div>
+                  </div>
+                </div>
 
+                <input type="text" th:field="*{emails[__${rowStat.index}__].address}"/>
+              </div>
             </div>
 
 

@@ -80,6 +80,31 @@ public class Repository {
       contact_id = ?;
   """
 
+  def get_emails_by_contact_id_stmt = """
+    select
+      id,
+      type,
+      address
+    from email
+    where contact_id = ?
+    order by index;
+  """
+  def insert_email_stmt = """
+    insert into email (
+      type,
+      address,
+      index,
+      contact_id
+    ) values (?, ?, ?, ?) ;
+  """
+  def update_email_stmt = """
+    update email set
+      type = ?,
+      address = ?,
+      index = ?,
+      contact_id = ?;
+  """
+
   def listContacts() {
 
     withConnection { connection ->
@@ -120,7 +145,7 @@ public class Repository {
       if( !rs.next() ) {
         throw new Exception("Failed to save a contact")
       }
-      return resultSetToContact(rs)
+      return rsToContact(rs)
 
     }
   }
@@ -133,8 +158,10 @@ public class Repository {
       if(!rs.next()){
         throw new Exception("Contact not found")
       }
-      def contact = resultSetToContact(rs)
+      def contact = rsToContact(rs)
       contact.telephones = getContactTelephones(connection, contact_id)
+      contact.emails = getContactEmails(connection, contact_id)
+      println contact.emails
       return contact
     }
   }
@@ -151,6 +178,7 @@ public class Repository {
       def nb_row_updated = update_contact_by_id_prepared_stmt.executeUpdate()
       if(nb_row_updated > 0){
         updateContactTelephones(connection, contact_id, contact.telephones)
+        updateContactEmails(connection, contact_id, contact.emails)
       }
 
     }
@@ -165,7 +193,6 @@ public class Repository {
   }
   def updateContactTelephones(connection, long contact_id, telephones){
     //Telphones will contains new and old telephones entities
-    //Index in the list should be enforced
     telephones.eachWithIndex { telephone, index ->
       if(telephone.id) {
         updateContactTelephone(connection, contact_id, index, telephone)
@@ -191,6 +218,41 @@ public class Repository {
     insert_telephone_prepared_stmt.executeUpdate()
   }
 
+  def getContactEmails(connection, long contact_id){
+    def get_emails_by_contact_id_prepared_stmt = connection.prepareStatement get_emails_by_contact_id_stmt
+    get_emails_by_contact_id_prepared_stmt.setLong(1, contact_id)
+    get_emails_by_contact_id_prepared_stmt.executeQuery()
+    def rs = get_emails_by_contact_id_prepared_stmt.resultSet
+    rsToEmails(rs)
+  }
+
+  def updateContactEmails(connection, long contact_id, emails){
+    emails.eachWithIndex { email, index ->
+      if(email.id) {
+        updateContactEmail(connection, contact_id, index, email)
+      } else {
+        insertContactEmail(connection, contact_id, index, email)
+      }
+    }
+  }
+
+  def updateContactEmail(connection, contact_id, index, email){
+    def update_email_prepared_stmt = connection.prepareStatement update_email_stmt
+    update_email_prepared_stmt.setString(1, email.type)
+    update_email_prepared_stmt.setString(2, email.address)
+    update_email_prepared_stmt.setLong(3, index)
+    update_email_prepared_stmt.setLong(4, contact_id)
+    update_email_prepared_stmt.executeUpdate()
+  }
+  def insertContactEmail(connection, contact_id, index, email){
+    def insert_email_prepared_stmt = connection.prepareStatement insert_email_stmt
+    insert_email_prepared_stmt.setString(1, email.type)
+    insert_email_prepared_stmt.setString(2, email.address)
+    insert_email_prepared_stmt.setLong(3, index)
+    insert_email_prepared_stmt.setLong(4, contact_id)
+    insert_email_prepared_stmt.executeUpdate()
+  }
+
   def withConnection(closure){
     def connection
     try{
@@ -201,7 +263,7 @@ public class Repository {
       connection?.close()
     }
   }
-  def resultSetToContact(rs){
+  def rsToContact(rs){
     new Contact([
       id: rs.getLong("id"),
       type_organization: rs.getBoolean("type_organization"),
@@ -223,6 +285,19 @@ public class Repository {
       telephones.add(tel)
     }
     return telephones
+  }
+
+  def rsToEmails(rs){
+    def emails = []
+    while(rs.next()){
+      def email = new Email([
+        id: rs.getLong("id"),
+        type: rs.getString("type"),
+        address: rs.getString("address")
+      ])
+      emails.add(email)
+    }
+    emails
   }
 
 
