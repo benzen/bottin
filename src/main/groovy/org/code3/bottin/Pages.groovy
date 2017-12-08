@@ -117,4 +117,20 @@ class Pages {
 
   }
 
+  @GetMapping("contacts/{contact_id}/restore")
+  def contact_restore(ModelMap modelMap, @PathVariable long contact_id, RedirectAttributes redirectAttributes){
+    try{
+      repository.restore_contact(contact_id)
+      def contact = repository.getContact(contact_id)
+      searchIndex.indexContact(contact)
+      "redirect:/contacts/$contact_id/show"
+    } catch (Exception e) {
+      //TODO what about a logger
+      e.printStackTrace()
+      redirectAttributes.addFlashAttribute("error", "Failed to restore contact")
+      "redirect:/contacts/$contact_id/show"
+    }
+
+  }
+
 }

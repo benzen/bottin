@@ -8,6 +8,7 @@ public class Contact {
   String organization_name
   String notes
   String avatar_url
+  Boolean archived
 
   List<Telephone>  telephones
   List<Email> emails

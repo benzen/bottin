@@ -68,10 +68,16 @@
           <div class="ui horizontal divider"/>
 
           <div class="ui row">
-            <div class="ui buttons left floated">
+            <div class="ui buttons left floated" th:unless="${contact.archived}">
               <a class="ui red button" th:href="@{/contacts/{contactId}/delete(contactId=${contact.id})}">
                 <i class="ui icon trash"/>
                 Delete
+              </a>
+            </div>
+            <div class="ui buttons left floated" th:if="${contact.archived}">
+              <a class="ui grey button" th:href="@{/contacts/{contactId}/restore(contactId=${contact.id})}">
+                <i class="ui icon archive"/>
+                Restore
               </a>
             </div>
             <div class="ui buttons right floated">

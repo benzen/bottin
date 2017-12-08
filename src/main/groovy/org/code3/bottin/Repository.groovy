@@ -21,7 +21,7 @@ public class Repository {
       organization_name,
       notes,
       avatar_url
-    from contact;
+    from contact where archive= false;
   """
   def insert_stmt = """
     insert into contact (
@@ -41,7 +41,8 @@ public class Repository {
       lastname,
       organization_name,
       notes,
-      avatar_url
+      avatar_url,
+      archived
     from
       contact where id = ?;
   """
@@ -394,7 +395,8 @@ public class Repository {
       lastname: rs.getString("lastname"),
       organization_name: rs.getString("organization_name"),
       notes: rs.getString("notes"),
-      avatar_url: rs.getString("avatar_url")
+      avatar_url: rs.getString("avatar_url"),
+      archived: rs.getBoolean("archived")
     ])
   }
   def rsToTelephones(rs){
