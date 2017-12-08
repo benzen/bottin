@@ -14,15 +14,15 @@
         <div class="ten wide column centered">
 
 
-          <div class="ui image label" th:unless="${contact.type_organization}">
-            <img th:with="url=${#strings.defaultString(contact.avatar_url, '/assets/images/avatars/default.png')}" th:src="@{${url}}"/>
+          <h1 th:unless="${contact.type_organization}">
+            <img th:with="url=${#strings.defaultString(contact.avatar_url, '/assets/images/avatars/default.png')}" th:src="@{${url}}" style="width:185px; height:185px"/>
             <span th:text="${contact.firstname}"></span>
             <span th:text="${contact.lastname}"></span>
             <div class="detail" th:text="${contact.organization_name}" th:unless="${#strings.isEmpty(contact.organization_name)}"></div>
-          </div>
-          <div class="ui image label" th:if="${contact.type_organization}">
+          </h1>
+          <h1 th:if="${contact.type_organization}">
             <div class="detail" th:text="${contact.organization_name}"></div>
-          </div>
+          </h1>
 
           <div class="ui comments">
             <div class="comment">
@@ -31,7 +31,13 @@
               </div>
             </div>
           </div>
+          <div class="ui row">
 
+            <div th:each="telephone : ${contact.telephones}" class="ui label">
+              <span th:text="${telephone.type}"></span>
+              <div class="detail" th:text="${telephone.number}"></div>
+            </div>
+          </div>
           <div class="ui row">
 
             <div class="ui buttons right floated">

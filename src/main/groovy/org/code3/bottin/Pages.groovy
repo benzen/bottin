@@ -67,7 +67,6 @@ class Pages {
   def contact_edit(ModelMap modelMap, @PathVariable Long contact_id, @RequestParam(value="add", required=false) String addField){
     def contact = repository.getContact(contact_id)
 
-
     if(addField == "telephone"){
       contact.telephones = contact.telephones ?: []
       contact.telephones.add( new Telephone())
@@ -84,5 +83,20 @@ class Pages {
 
   }
 
+  @PostMapping("/contacts/{contact_id}/update")
+  def contact_update(ModelMap modelMap, @PathVariable long contact_id, @ModelAttribute("contact") Contact contact){
+    try{
+      repository.updateContact(contact_id, contact)
+      "redirect:/contacts/$contact_id/show"
+    } catch (Exception e){
+      //TODO what about a logger
+      println e
+      modelMap.addAttribute("contact", contact)
+      modelMap.addAttribute("error", "Fuck men")
+      "contacts/edit"
+    }
+
+
+  }
 
 }

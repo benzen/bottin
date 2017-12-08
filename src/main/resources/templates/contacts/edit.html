@@ -3,6 +3,9 @@
   </head>
   <body>
     <div class="ui container">
+      <div class="ui message error" th:if="${error}">
+        Something bad happend
+      </div>
       <div class="ui grid">
         <div class="row">
           <div class="ui hidden divider"></div>
@@ -12,7 +15,7 @@
         </div>
 
         <div class="ten wide column centered">
-          <form class="ui form" action="/contacts/add" method="POST" th:object="${contact}">
+          <form class="ui form" th:action="@{/contacts/{contactId}/update(contactId=${contact.id})}" method="POST" th:object="${contact}">
 
             <div class="field">
               <div class="ui slider checkbox">
@@ -78,7 +81,8 @@
               Telephones
             </div>
             <div class="field" th:each="tel,rowStat : *{telephones}">
-              <div class="tow fields">
+              <div class="row fields">
+                <input type="hidden" th:field="*{telephones[__${rowStat.index}__].id}"/>
                 <div class="ui selection dropdown">
                   <input type="hidden" th:field="*{telephones[__${rowStat.index}__].type}"/>
                   <i class="dropdown icon"></i>
@@ -145,6 +149,7 @@
 
       toggleMalePane(false);
       $('.dropdown').dropdown();
+      $('.checkbox').checkbox();
 
 
     </script>
