@@ -154,6 +154,14 @@ public class Repository {
       contact_id = ?;
   """
 
+  def archive_contact_stmt = """
+    update contact set archived = true where id=?
+  """
+
+  def restore_contact_stmt = """
+    update contact set archived = false where id=?
+  """
+
   def listContacts() {
 
     withConnection { connection ->
@@ -231,6 +239,21 @@ public class Repository {
         updateContactAddresses(connection, contact_id, contact.addresses)
       }
 
+    }
+  }
+  def archive_contact(Long contact_id){
+    withConnection { connection ->
+        def archive_contact_prepared_stmt = connection.prepareStatement archive_contact_stmt
+        archive_contact_prepared_stmt.setLong(1, contact_id)
+        archive_contact_prepared_stmt.executeUpdate()
+    }
+
+  }
+  def restore_contact(Long contact_id){
+    withConnection { connection ->
+        def restore_contact_prepared_stmt = connection.prepareStatement restore_contact_stmt
+        restore_contact_prepared_stmt.setLong(1, contact_id)
+        restore_contact_prepared_stmt.executeUpdate()
     }
   }
 
@@ -350,6 +373,7 @@ public class Repository {
     insert_address_prepared_stmt.setLong(11, contact_id)
     insert_address_prepared_stmt.executeUpdate()
   }
+
 
 
   def withConnection(closure){

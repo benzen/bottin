@@ -8,6 +8,7 @@ import org.springframework.ui.ModelMap
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 
 @Controller
@@ -23,6 +24,7 @@ class Pages {
   def index(ModelMap model){
     "redirect:/contacts/list"
   }
+
   @GetMapping("/contacts/list")
   def contacts_list(ModelMap model){
     def contactsSearch = searchIndex.searchContact("*")
@@ -84,18 +86,34 @@ class Pages {
   }
 
   @PostMapping("/contacts/{contact_id}/update")
-  def contact_update(ModelMap modelMap, @PathVariable long contact_id, @ModelAttribute("contact") Contact contact){
+  def contact_update(ModelMap modelMap, @PathVariable long contact_id, @ModelAttribute("contact") Contact contact, RedirectAttributes redirectAttributes){
     try{
       repository.updateContact(contact_id, contact)
       "redirect:/contacts/$contact_id/show"
     } catch (Exception e){
       //TODO what about a logger
-      println e
-      modelMap.addAttribute("contact", contact)
-      modelMap.addAttribute("error", "Fuck men")
+      e.printStackTrace()
+      redirectAttributes.addFlashAttribute("contact", contact)
+      redirectAttributes.addFlashAttribute("error", "Fuck men")
       "redirect:/contacts/$contact_id/edit"
     }
 
+
+  }
+
+  @GetMapping("contacts/{contact_id}/delete")
+  def contact_delete(ModelMap modelMap, @PathVariable long contact_id, RedirectAttributes redirectAttributes){
+    try{
+      repository.archive_contact(contact_id)
+      modelMap.addAttribute("deletedContact", contact_id)
+      searchIndex.unindex(contact_id)
+      "redirect:/contacts/list"
+    } catch (Exception e) {
+      //TODO what about a logger
+      e.printStackTrace()
+      redirectAttributes.addFlashAttribute("error", "Failed to delete contact")
+      "redirect:/contacts/$contact_id/show"
+    }
 
   }
 

@@ -58,6 +58,11 @@ public class SearchIndex {
     indexWriter.commit()
   }
 
+  def unindex(contact_id){
+    def res = indexWriter.deleteDocuments(new Term("id", "$contact_id"))
+    indexWriter.commit()
+  }
+
   def defaultQuery(){
     new MatchAllDocsQuery()
   }
@@ -73,7 +78,6 @@ public class SearchIndex {
   }
 
   def searchContact(searchQuery){
-
     def q = searchQuery != "*" ? buildQuery(searchQuery) : defaultQuery()
     def directoryReader = DirectoryReader.open(index)
     def indexSearcher =  new IndexSearcher(directoryReader)
@@ -86,7 +90,6 @@ public class SearchIndex {
     directoryReader.close()
 
     results
-
   }
 
   def documentToContact(doc){
@@ -103,7 +106,7 @@ public class SearchIndex {
 
   def contactToDocument(contact) {
     Document doc = new Document()
-    doc.add(new StoredField("id", contact.id))
+    doc.add(new TextField("id", "$contact.id", Field.Store.YES))
     doc.add(new TextField("firstname", contact.firstname, Field.Store.YES))
     doc.add(new TextField("lastname", contact.lastname, Field.Store.YES))
     doc.add(new TextField("type_organization", contact.type_organization ? "true" : "false", Field.Store.YES))

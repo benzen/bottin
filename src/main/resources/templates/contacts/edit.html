@@ -3,7 +3,7 @@
   </head>
   <body>
     <div class="ui container">
-      <div class="ui message error" th:if="${error}">
+      <div class="ui message error" th:if="${error}" th:text="${}">
         Something bad happend
       </div>
       <div class="ui grid">
