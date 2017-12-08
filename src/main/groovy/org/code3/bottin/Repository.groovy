@@ -75,8 +75,9 @@ public class Repository {
   def update_telephone_stmt = """
     update telephone set
       type = ?,
-      number = ?,
-      index = ?,
+      number = ?
+      where
+      index = ? and
       contact_id = ?;
   """
 
@@ -100,8 +101,9 @@ public class Repository {
   def update_email_stmt = """
     update email set
       type = ?,
-      address = ?,
-      index = ?,
+      address = ?
+      where
+      index = ? and
       contact_id = ?;
   """
 
@@ -161,7 +163,6 @@ public class Repository {
       def contact = rsToContact(rs)
       contact.telephones = getContactTelephones(connection, contact_id)
       contact.emails = getContactEmails(connection, contact_id)
-      println contact.emails
       return contact
     }
   }
@@ -242,6 +243,7 @@ public class Repository {
     update_email_prepared_stmt.setString(2, email.address)
     update_email_prepared_stmt.setLong(3, index)
     update_email_prepared_stmt.setLong(4, contact_id)
+
     update_email_prepared_stmt.executeUpdate()
   }
   def insertContactEmail(connection, contact_id, index, email){
