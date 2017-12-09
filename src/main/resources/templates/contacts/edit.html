@@ -24,17 +24,17 @@
               </div>
             </div>
 
-            <div class="field">
+            <div class="field person-name" th:style="${contact.type_organization ? 'display: none' : ''}">
               <label for="firstname">Firstname</label>
               <input type="text" th:field="*{firstname}"/>
             </div>
 
-            <div class="field">
+            <div class="field person-name" th:style="${contact.type_organization ? 'display: none' : ''}">
               <label for="lastname">Lastname</label>
               <input type="text" th:field="*{lastname}"/>
             </div>
 
-            <div class="field">
+            <div class="field org-name" th:style="${contact.type_organization ? '' : 'display: none'}">
               <label for="organization_name">Organization name</label>
               <input type="text" th:field="*{organization_name}"/>
             </div>
@@ -221,7 +221,16 @@
 
       toggleMalePane(false);
       $('.dropdown').dropdown();
-      $('.checkbox').checkbox();
+      $('.checkbox').checkbox({
+        onChecked: function(){
+          $('.org-name').show()
+          $('.person-name').hide()
+        },
+        onUnchecked: function(){
+          $('.org-name').hide()
+          $('.person-name').show()
+        }
+      });
 
 
     </script>
