@@ -5,6 +5,7 @@ import javax.sql.DataSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.sql.Statement
+import groovy.sql.Sql
 
 @Service
 public class Repository {
@@ -21,7 +22,7 @@ public class Repository {
       organization_name,
       notes,
       avatar_url
-    from contact where archive= false;
+    from contact where archived = false;
   """
   def insert_stmt = """
     insert into contact (
@@ -31,7 +32,7 @@ public class Repository {
       organization_name,
       notes,
       avatar_url
-      ) values (?, ?, ?, ?, ?, ?) ;
+      ) values (:type_organization, :firstname, :lastname, :organization_name, :notes, :avatar_url) ;
   """
   def get_contact_by_id_stmt = """
     select
@@ -44,17 +45,17 @@ public class Repository {
       avatar_url,
       archived
     from
-      contact where id = ?;
+      contact where id = :contact_id;
   """
   def update_contact_by_id_stmt = """
     update contact set
-     type_organization = ?,
-     firstname = ?,
-     lastname = ?,
-     organization_name = ?,
-     notes = ?,
-     avatar_url = ?
-    where id = ?;
+     type_organization = :type_organization,
+     firstname = :firstname,
+     lastname = :lastname,
+     organization_name = :organization_name,
+     notes = :notes,
+     avatar_url = :avatar_url
+    where id = :id;
   """
   def get_telephones_by_contact_id_stmt = """
     select
@@ -62,7 +63,7 @@ public class Repository {
       type,
       number
     from telephone
-    where contact_id = ?
+    where contact_id = :contact_id
     order by index;
   """
   def insert_telephone_stmt = """
@@ -71,15 +72,14 @@ public class Repository {
       number,
       index,
       contact_id
-    ) values (?, ?, ?, ?) ;
+    ) values (:type, :number, :index, :contact_id);
   """
   def update_telephone_stmt = """
     update telephone set
-      type = ?,
-      number = ?
+      type = :type,
+      number = :number
       where
-      index = ? and
-      contact_id = ?;
+      index = :index and contact_id = :contact_id;
   """
 
   def get_emails_by_contact_id_stmt = """
@@ -88,7 +88,7 @@ public class Repository {
       type,
       address
     from email
-    where contact_id = ?
+    where contact_id = :contact_id
     order by index;
   """
   def insert_email_stmt = """
@@ -97,15 +97,15 @@ public class Repository {
       address,
       index,
       contact_id
-    ) values (?, ?, ?, ?) ;
+    ) values (:type, :address, :index, :contact_id) ;
   """
   def update_email_stmt = """
     update email set
-      type = ?,
-      address = ?
+      type = :type,
+      address = :address
       where
-      index = ? and
-      contact_id = ?;
+      index = :index and
+      contact_id = :contact_id;
   """
 
   def get_addresses_by_contact_id_stmt = """
@@ -121,7 +121,7 @@ public class Repository {
       country_code,
       delivery_info
     from address
-    where contact_id = ?
+    where contact_id = :contact_id
     order by index;
   """
   def insert_address_stmt = """
@@ -137,312 +137,202 @@ public class Repository {
       delivery_info,
       index,
       contact_id
-    ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ;
+    ) values (:type, :unit, :street, :locality, :region_code, :pobox, :postal_code, :country_code, :delivery_info, :index, :contact_id) ;
   """
   def update_address_stmt = """
     update address set
-      type = ?,
-      unit = ?,
-      street = ?,
-      locality = ?,
-      region_code = ?,
-      pobox = ?,
-      postal_code = ?,
-      country_code = ?,
-      delivery_info = ?
+      type = :type,
+      unit = :unit,
+      street = :street,
+      locality = :locality,
+      region_code = :region_code,
+      pobox = :pobox,
+      postal_code = :postaL_code,
+      country_code = :country_code,
+      delivery_info = :delivery_info
       where
-      index = ? and
-      contact_id = ?;
+      index = :index and
+      contact_id = :contact_id;
   """
 
   def archive_contact_stmt = """
-    update contact set archived = true where id=?
+    update contact set archived = true where id=:id
   """
 
   def restore_contact_stmt = """
-    update contact set archived = false where id=?
+    update contact set archived = false where id=:id
   """
 
   def listContacts() {
-
-    withConnection { connection ->
-      def contacts = []
-
-      def select_all_prepared_stmt = connection.prepareStatement select_all_stmt
-      select_all_prepared_stmt.execute()
-      def rs = select_all_prepared_stmt.executeQuery()
-
-      while( rs.next() ) {
-        def contact = [
-          id: rs.getInt("id"),
-          type_organization: rs.getBoolean("type_organization"),
-          firstname: rs.getString("firstname"),
-          lastname: rs.getString("lastname"),
-          organization_name: rs.getString("organization_name"),
-          notes: rs.getString("notes")
-        ]
-        contacts.push(contact)
-      }
-      contacts
-    }
+    withSql { sql -> sql.rows(select_all_stmt)  }
   }
+
   def addContact(Contact contact){
-    withConnection { connection ->
-
-      def insert_prepared_stmt = connection.prepareStatement(insert_stmt, Statement.RETURN_GENERATED_KEYS)
-      insert_prepared_stmt.setBoolean(1, contact.type_organization)
-      insert_prepared_stmt.setString(2, contact.firstname)
-      insert_prepared_stmt.setString(3, contact.lastname)
-      insert_prepared_stmt.setString(4, contact.organization_name)
-      insert_prepared_stmt.setString(5, contact.notes)
-      insert_prepared_stmt.setString(6, contact.avatar_url)
-
-      insert_prepared_stmt.execute()
-      def rs = insert_prepared_stmt.getGeneratedKeys()
-      def saved_contact = new Contact()
-      if( !rs.next() ) {
-        throw new Exception("Failed to save a contact")
-      }
-      return rsToContact(rs)
-
+    withSql { sql ->
+      def res = sql.executeInsert(insert_stmt, contact)
+      new Contact(sql.firstRow(get_contact_by_id_stmt, [contact_id: res[0][0]]))
     }
   }
+
   def getContact(Long contact_id){
-    withConnection { connection ->
-      def get_by_id_prepared_stmt = connection.prepareStatement get_contact_by_id_stmt
-      get_by_id_prepared_stmt.setLong(1, contact_id)
-      get_by_id_prepared_stmt.executeQuery()
-      def rs = get_by_id_prepared_stmt.resultSet
-      if(!rs.next()){
+    withSql { sql ->
+      def contact = new Contact(sql.firstRow(get_contact_by_id_stmt, [contact_id: contact_id]))
+      if(!contact){
         throw new Exception("Contact not found")
       }
-      def contact = rsToContact(rs)
-      contact.telephones = getContactTelephones(connection, contact_id)
-      contact.emails = getContactEmails(connection, contact_id)
-      contact.addresses = getContactAddresses(connection, contact_id)
-      return contact
+      contact.telephones = getContactTelephones(sql, contact_id)
+      contact.emails = getContactEmails(sql, contact_id)
+      contact.addresses = getContactAddresses(sql, contact_id)
+      contact
     }
   }
   def updateContact(Long contact_id, Contact contact){
-    withConnection { connection ->
-      def update_contact_by_id_prepared_stmt = connection.prepareStatement update_contact_by_id_stmt
-      update_contact_by_id_prepared_stmt.setBoolean(1, contact.type_organization)
-      update_contact_by_id_prepared_stmt.setString(2, contact.firstname)
-      update_contact_by_id_prepared_stmt.setString(3, contact.lastname)
-      update_contact_by_id_prepared_stmt.setString(4, contact.organization_name)
-      update_contact_by_id_prepared_stmt.setString(5, contact.notes)
-      update_contact_by_id_prepared_stmt.setString(6, contact.avatar_url)
-      update_contact_by_id_prepared_stmt.setLong(7, contact_id)
-      def nb_row_updated = update_contact_by_id_prepared_stmt.executeUpdate()
-      if(nb_row_updated > 0){
-        updateContactTelephones(connection, contact_id, contact.telephones)
-        updateContactEmails(connection, contact_id, contact.emails)
-        updateContactAddresses(connection, contact_id, contact.addresses)
+    withSql { sql ->
+      def nb_rows_updated = sql.executeUpdate(update_contact_by_id_stmt, contact)
+
+      if(nb_rows_updated > 0){
+        updateContactTelephones(sql, contact_id, contact.telephones)
+        updateContactEmails(sql, contact_id, contact.emails)
+        updateContactAddresses(sql, contact_id, contact.addresses)
       }
 
     }
   }
   def archive_contact(Long contact_id){
-    withConnection { connection ->
-        def archive_contact_prepared_stmt = connection.prepareStatement archive_contact_stmt
-        archive_contact_prepared_stmt.setLong(1, contact_id)
-        archive_contact_prepared_stmt.executeUpdate()
-    }
+    withSql { sql -> sql.executeUpdate(archive_contact_stmt, [contact_id: contact_id]) }
 
   }
   def restore_contact(Long contact_id){
-    withConnection { connection ->
-        def restore_contact_prepared_stmt = connection.prepareStatement restore_contact_stmt
-        restore_contact_prepared_stmt.setLong(1, contact_id)
-        restore_contact_prepared_stmt.executeUpdate()
-    }
+    withSql { sql -> sql.executeUpdate(restore_contact_stmt, [contact_id: contact_id]) }
   }
 
-  def getContactTelephones(connection, long contact_id){
-    def get_telephones_by_contact_id_prepared_stmt = connection.prepareStatement get_telephones_by_contact_id_stmt
-    get_telephones_by_contact_id_prepared_stmt.setLong(1, contact_id)
-    get_telephones_by_contact_id_prepared_stmt.executeQuery()
-    def rs = get_telephones_by_contact_id_prepared_stmt.resultSet
-    rsToTelephones(rs)
+  def getContactTelephones(sql, long contact_id){
+    sql.rows(get_telephones_by_contact_id_stmt, [contact_id: contact_id]).collect({new Telephone(it)})
   }
-  def updateContactTelephones(connection, long contact_id, telephones){
+
+  def updateContactTelephones(sql, long contact_id, telephones){
     //Telphones will contains new and old telephones entities
     telephones.eachWithIndex { telephone, index ->
       if(telephone.id) {
-        updateContactTelephone(connection, contact_id, index, telephone)
+        updateContactTelephone(sql, contact_id, index, telephone)
       } else {
-        insertContactTelephone(connection, contact_id, index, telephone)
+        insertContactTelephone(sql, contact_id, index, telephone)
       }
     }
   }
-  def updateContactTelephone(connection, contact_id, index, telephone){
-    def update_telephone_prepared_stmt = connection.prepareStatement update_telephone_stmt
-    update_telephone_prepared_stmt.setString(1, telephone.type)
-    update_telephone_prepared_stmt.setString(2, telephone.number)
-    update_telephone_prepared_stmt.setLong(3, index)
-    update_telephone_prepared_stmt.setLong(4, contact_id)
-    update_telephone_prepared_stmt.executeUpdate()
+  def updateContactTelephone(sql, contact_id, index, telephone){
+    def params = [
+      id: telephone.id,
+      type:telephone.type,
+      number: telephone.number,
+      contact_id: contact_id,
+      index: index
+    ]
+    sql.executeUpdate(update_telephone_stmt, params)
   }
-  def insertContactTelephone(connection, contact_id, index, telephone){
-    def insert_telephone_prepared_stmt = connection.prepareStatement insert_telephone_stmt
-    insert_telephone_prepared_stmt.setString(1, telephone.type)
-    insert_telephone_prepared_stmt.setString(2, telephone.number)
-    insert_telephone_prepared_stmt.setLong(3, index)
-    insert_telephone_prepared_stmt.setLong(4, contact_id)
-    insert_telephone_prepared_stmt.executeUpdate()
+  def insertContactTelephone(sql, contact_id, index, telephone){
+    def params = [
+      id: telephone.id,
+      type:telephone.type,
+      number: telephone.number,
+      contact_id: contact_id,
+      index: index
+    ]
+    sql.executeInsert(insert_telephone_stmt, params)
   }
 
-  def getContactEmails(connection, long contact_id){
-    def get_emails_by_contact_id_prepared_stmt = connection.prepareStatement get_emails_by_contact_id_stmt
-    get_emails_by_contact_id_prepared_stmt.setLong(1, contact_id)
-    get_emails_by_contact_id_prepared_stmt.executeQuery()
-    def rs = get_emails_by_contact_id_prepared_stmt.resultSet
-    rsToEmails(rs)
+  def getContactEmails(sql, long contact_id){
+    sql.rows(get_emails_by_contact_id_stmt, [contact_id: contact_id]).collect({new Email(it)})
   }
-  def updateContactEmails(connection, long contact_id, emails){
+  def updateContactEmails(sql, long contact_id, emails){
     emails.eachWithIndex { email, index ->
       if(email.id) {
-        updateContactEmail(connection, contact_id, index, email)
+        updateContactEmail(sql, contact_id, index, email)
       } else {
-        insertContactEmail(connection, contact_id, index, email)
+        insertContactEmail(sql, contact_id, index, email)
       }
     }
   }
-  def updateContactEmail(connection, contact_id, index, email){
-    def update_email_prepared_stmt = connection.prepareStatement update_email_stmt
-    update_email_prepared_stmt.setString(1, email.type)
-    update_email_prepared_stmt.setString(2, email.address)
-    update_email_prepared_stmt.setLong(3, index)
-    update_email_prepared_stmt.setLong(4, contact_id)
-
-    update_email_prepared_stmt.executeUpdate()
+  def updateContactEmail(sql, contact_id, index, email){
+    def params = [
+      contact_id: contact_id,
+      index: index,
+      id: email.id,
+      address: email.address,
+      type: email.type
+    ]
+    sql.executeUpdate(update_email_stmt, params)
   }
-  def insertContactEmail(connection, contact_id, index, email){
-    def insert_email_prepared_stmt = connection.prepareStatement insert_email_stmt
-    insert_email_prepared_stmt.setString(1, email.type)
-    insert_email_prepared_stmt.setString(2, email.address)
-    insert_email_prepared_stmt.setLong(3, index)
-    insert_email_prepared_stmt.setLong(4, contact_id)
-    insert_email_prepared_stmt.executeUpdate()
+  def insertContactEmail(sql, contact_id, index, email){
+    def params = [
+      contact_id: contact_id,
+      index: index,
+      id: email.id,
+      address: email.address,
+      type: email.type
+    ]
+    sql.executeInsert(params, insert_email_stmt)
   }
 
 
-  def getContactAddresses(connection, long contact_id){
-    def get_addresses_by_contact_id_prepared_stmt = connection.prepareStatement get_addresses_by_contact_id_stmt
-    get_addresses_by_contact_id_prepared_stmt.setLong(1, contact_id)
-    get_addresses_by_contact_id_prepared_stmt.executeQuery()
-    def rs = get_addresses_by_contact_id_prepared_stmt.resultSet
-    rsToAddresses(rs)
+  def getContactAddresses(sql, long contact_id){
+    sql.rows(get_addresses_by_contact_id_stmt, [contact_id: contact_id]).collect({new Address(it)})
   }
-  def updateContactAddresses(connection, long contact_id, addresses){
+  def updateContactAddresses(sql, long contact_id, addresses){
     addresses.eachWithIndex { address, index ->
       if(address.id) {
-        updateContactAddress(connection, contact_id, index, address)
+        updateContactAddress(sql, contact_id, index, address)
       } else {
-        insertContactAddress(connection, contact_id, index, address)
+        insertContactAddress(sql, contact_id, index, address)
       }
     }
   }
-  def updateContactAddress(connection, contact_id, index, address){
-    def update_address_prepared_stmt = connection.prepareStatement update_address_stmt
-    update_address_prepared_stmt.setString(1, address.type)
-    update_address_prepared_stmt.setString(2, address.unit)
-    update_address_prepared_stmt.setString(3, address.street)
-    update_address_prepared_stmt.setString(4, address.locality)
-    update_address_prepared_stmt.setString(5, address.region_code)
-    update_address_prepared_stmt.setString(6, address.pobox)
-    update_address_prepared_stmt.setString(7, address.postal_code)
-    update_address_prepared_stmt.setString(8, address.country_code)
-    update_address_prepared_stmt.setString(9, address.delivery_info)
-    update_address_prepared_stmt.setLong(10, index)
-    update_address_prepared_stmt.setLong(11, contact_id)
-
-    update_address_prepared_stmt.executeUpdate()
+  def updateContactAddress(sql, contact_id, index, address){
+    // x = [a:1, b:2]
+    // y = [c:3, d:4]
+    //
+    // z = [*:x, *:y]
+    def params = [
+      type: address.type,
+      unit: address.unit,
+      street: address.street,
+      locality: address.locality,
+      region_code: address.region_code,
+      pobox: address.pobox,
+      postaL_code: address.postal_code,
+      country_code: address.country_code,
+      delivery_info: address.delivery_info,
+      index: index,
+      contact_id: contact_id
+    ]
+    sql.executeUpdate(update_address_stmt, params)
   }
-  def insertContactAddress(connection, contact_id, index, address){
-    def insert_address_prepared_stmt = connection.prepareStatement insert_address_stmt
-    insert_address_prepared_stmt.setString(1, address.type)
-    insert_address_prepared_stmt.setString(2, address.unit)
-    insert_address_prepared_stmt.setString(3, address.street)
-    insert_address_prepared_stmt.setString(4, address.locality)
-    insert_address_prepared_stmt.setString(5, address.region_code)
-    insert_address_prepared_stmt.setString(6, address.pobox)
-    insert_address_prepared_stmt.setString(7, address.postal_code)
-    insert_address_prepared_stmt.setString(8, address.country_code)
-    insert_address_prepared_stmt.setString(9, address.delivery_info)
-    insert_address_prepared_stmt.setLong(10, index)
-    insert_address_prepared_stmt.setLong(11, contact_id)
-    insert_address_prepared_stmt.executeUpdate()
+  def insertContactAddress(sql, contact_id, index, address){
+    def params = [
+      type: address.type,
+      unit: address.unit,
+      street: address.street,
+      locality: address.locality,
+      region_code: address.region_code,
+      pobox: address.pobox,
+      postaL_code: address.postal_code,
+      country_code: address.country_code,
+      delivery_info: address.delivery_info,
+      index: index,
+      contact_id: contact_id
+    ]
+    sql.executeInsert(insert_address_stmt, params)
   }
 
-
-
-  def withConnection(closure){
-    def connection
+  def withSql(closure){
+    def sql
     try{
-      connection = datasource.getConnection()
-      closure(connection)
+      sql =  new Sql(datasource.getConnection())
+      closure(sql)
     }
     finally {
-      connection?.close()
+      sql?.close()
     }
-  }
-  def rsToContact(rs){
-    new Contact([
-      id: rs.getLong("id"),
-      type_organization: rs.getBoolean("type_organization"),
-      firstname: rs.getString("firstname"),
-      lastname: rs.getString("lastname"),
-      organization_name: rs.getString("organization_name"),
-      notes: rs.getString("notes"),
-      avatar_url: rs.getString("avatar_url"),
-      archived: rs.getBoolean("archived")
-    ])
-  }
-  def rsToTelephones(rs){
-    def telephones = []
-    while(rs.next()){
-      def tel = new Telephone([
-        id: rs.getLong("id"),
-        type: rs.getString("type"),
-        number: rs.getString("number"),
-      ])
-      telephones.add(tel)
-    }
-    return telephones
-  }
-
-  def rsToEmails(rs){
-    def emails = []
-    while(rs.next()){
-      def email = new Email([
-        id: rs.getLong("id"),
-        type: rs.getString("type"),
-        address: rs.getString("address")
-      ])
-      emails.add(email)
-    }
-    emails
-  }
-
-  def rsToAddresses(rs){
-    def addresses = []
-    while(rs.next()){
-      def address = new Address([
-        id: rs.getLong("id"),
-        type: rs.getString("type"),
-        unit: rs.getString("unit"),
-        street: rs.getString("street"),
-        locality: rs.getString("locality"),
-        region_code: rs.getString("region_code"),
-        pobox: rs.getString("pobox"),
-        postal_code: rs.getString("postal_code"),
-        country_code: rs.getString("country_code"),
-        delivery_info: rs.getString("delivery_info"),
-      ])
-      addresses.add(address)
-    }
-    addresses
   }
 
 

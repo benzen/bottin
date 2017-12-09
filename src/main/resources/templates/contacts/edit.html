@@ -3,7 +3,7 @@
   </head>
   <body>
     <div class="ui container">
-      <div class="ui message error" th:if="${error}" th:text="${}">
+      <div class="ui message error" th:if="${error}" th:text="${error} ?: 'Something bad happened'">
         Something bad happend
       </div>
       <div class="ui grid">
@@ -16,7 +16,7 @@
 
         <div class="ten wide column centered">
           <form class="ui form" th:action="@{/contacts/{contactId}/update(contactId=${contact.id})}" method="POST" th:object="${contact}">
-
+            <input type="hidden" th:field="*{id}"/>
             <div class="field">
               <div class="ui slider checkbox">
                 <input type="checkbox" th:field="*{type_organization}" tabindex="0" class="hidden"/>
