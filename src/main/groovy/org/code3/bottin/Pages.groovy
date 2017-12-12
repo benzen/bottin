@@ -72,12 +72,15 @@ class Pages {
     if(addField == "telephone"){
       contact.telephones = contact.telephones ?: []
       contact.telephones.add( new Telephone())
-    }else if (addField == "address"){
+    } else if (addField == "address"){
       contact.addresses = contact.addresses ?: []
       contact.addresses.add(new Address())
-    }else if (addField == "email") {
+    } else if (addField == "email") {
       contact.emails =  contact.emails ?: []
       contact.emails.add(new Email())
+    } else if (addField == "relation") {
+      contact.relations =  contact.relations ?: []
+      contact.relations.add(new Relation())
     }
     modelMap.addAttribute("contact", contact)
 
@@ -89,6 +92,8 @@ class Pages {
   def contact_update(ModelMap modelMap, @PathVariable long contact_id, @ModelAttribute("contact") Contact contact, RedirectAttributes redirectAttributes){
     try{
       repository.updateContact(contact_id, contact)
+      searchIndex.unindex(contact_id)
+      searchIndex.indexContact(contact)
       "redirect:/contacts/$contact_id/show"
     } catch (Exception e){
       //TODO what about a logger
@@ -130,7 +135,7 @@ class Pages {
       redirectAttributes.addFlashAttribute("error", "Failed to restore contact")
       "redirect:/contacts/$contact_id/show"
     }
-
   }
+
 
 }

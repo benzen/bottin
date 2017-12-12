@@ -38,9 +38,14 @@ public class Api {
      new JsonBuilder(saved_contact).toString()
   }
 
-  @RequestMapping(value="/search", method= RequestMethod.GET, produces="application/json")
+  @RequestMapping(value="search", method= RequestMethod.GET, produces="application/json")
   def searchContact(@RequestParam("query")String query){
     def hits = searchIndex.searchContact(query)
-    new JsonBuilder(hits).toString()
+    def formattedHits = hits.collect {it ->
+      def doc = it.document
+      [id: doc.id, name: doc.type_organization ? doc.organization_name : "$doc.firstname $doc.lastname"]}
+    def resp = [success: true, results: formattedHits]
+    new JsonBuilder(resp).toString()
   }
+
 }

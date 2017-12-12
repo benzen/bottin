@@ -13,5 +13,6 @@ public class Contact {
   List<Telephone>  telephones
   List<Email> emails
   List<Address> addresses
+  List<Relation> relations
 
 }

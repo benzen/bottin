@@ -130,7 +130,6 @@
             </div>
 
 
-
             <!-- Telephones -->
             <div class="ui horizontal divider"/>
             <h1 class="ui" th:unless="${#arrays.isEmpty(contact.telephones)}">
@@ -176,6 +175,33 @@
               </div>
             </div>
 
+            <!-- Relations -->
+            <div class="ui horizontal divider"/>
+
+            <h1 class="ui" th:unless="${#arrays.isEmpty(contact.relations)}">
+              Relations
+            </h1>
+
+            <div class="field" th:each="relation,rowStat : *{relations}">
+              <input type="hidden" th:field="*{relations[__${rowStat.index}__].id}"/>
+              <div class="ui equal width grid">
+                <div class="column">
+                  <div class="ui fluid search selection dropdown">
+                    <input type="hidden" th:field="*{relations[__${rowStat.index}__].other.id}"/>
+                    <i class="dropdown icon"></i>
+                    <input class="search" th:if="${relation.id != null}" th:value="${contact.type_organization ? contact.firstname + ' ' + contact.lastname : contact.organization_name}"/>
+                    <div class="default text" th:if="${relation.id == null}">No contact selected</div>
+                    <div class="text" th:if="${relation.id != null and relation.other.type_organization}" th:text="${relation.other.organization_name}"></div>
+                    <div class="text" th:if="${relation.id != null and !relation.other.type_organization}" th:text="${relation.other.firstname + ' ' + relation.other.lastname}"></div>
+
+                    <div class="menu"></div>
+                  </div>
+                </div>
+                <div class="column">
+                  <input type="text" th:field="*{relations[__${rowStat.index}__].role}"/>
+                </div>
+              </div>
+            </div>
 
             <div class="ui basic dropdown left floated default icon button">
               <i class="plus icon"/>
@@ -183,6 +209,7 @@
                 <a class="item" th:href="@{/contacts/{contactId}/edit?add={field}(contactId=${contact.id}, field='address')}">Address</a>
                 <a class="item" th:href="@{/contacts/{contactId}/edit?add={field}(contactId=${contact.id}, field='telephone')}">Telephone</a>
                 <a class="item" th:href="@{/contacts/{contactId}/edit?add={field}(contactId=${contact.id}, field='email')}">Email</a>
+                <a class="item" th:href="@{/contacts/{contactId}/edit?add={field}(contactId=${contact.id}, field='relation')}">Relation</a>
               </div>
             </div>
 
@@ -220,7 +247,7 @@
       $('#avatar-view').click(resetAvatar)
 
       toggleMalePane(false);
-      $('.dropdown').dropdown();
+
       $('.checkbox').checkbox({
         onChecked: function(){
           $('.org-name').show()
@@ -231,7 +258,20 @@
           $('.person-name').show()
         }
       });
-
+      $('.search.dropdown').dropdown({
+        apiSettings: {
+          url: '/api/contacts/search?query={query}'
+        },
+        saveRemoteData: false,
+        cache: false,
+        fields: {
+          name  : 'name', // displayed dropdown
+          value : 'id'         // actual dropdown value
+        },
+        filterRemoteData: false
+        // localSearch: false,
+      });
+      $('.dropdown:not(.search)').dropdown();
 
     </script>
   </body>

@@ -65,6 +65,15 @@
             </div>
           </div>
 
+          <div class="ui row">
+            <h1 th:unless="${#arrays.isEmpty(contact.relations)}">Relations</h1>
+            <a th:each="relation : ${contact.relations}" class="ui label" th:href="@{/contacts/{id}/show(id=${relation.other.id})}">
+              <span th:if="${relation.other.type_organization}" th:text="${relation.other.organization_name}"></span>
+              <span th:unless="${relation.other.type_organization}" th:text="${relation.other.firstname + ' ' + relation.other.lastname}"></span>
+              <div class="detail" th:text="${relation.role}"/>
+            </a>
+          </div>
+
           <div class="ui horizontal divider"/>
 
           <div class="ui row">
