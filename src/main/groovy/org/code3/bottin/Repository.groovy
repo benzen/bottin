@@ -13,201 +13,224 @@ public class Repository {
   @Autowired
   DataSource datasource
 
-  def select_all_stmt = """
-    select
-      id,
-      type_organization,
-      firstname,
-      lastname,
-      organization_name,
-      notes,
-      avatar_url
-    from contact where archived = false;
-  """
-  def insert_stmt = """
-    insert into contact (
-      type_organization,
-      firstname,
-      lastname,
-      organization_name,
-      notes,
-      avatar_url
-      ) values (:type_organization, :firstname, :lastname, :organization_name, :notes, :avatar_url) ;
-  """
-  def get_contact_by_id_stmt = """
-    select
-      id,
-      type_organization,
-      firstname,
-      lastname,
-      organization_name,
-      notes,
-      avatar_url,
-      archived
-    from
-      contact where id = :contact_id;
-  """
-  def update_contact_by_id_stmt = """
-    update contact set
-     type_organization = :type_organization,
-     firstname = :firstname,
-     lastname = :lastname,
-     organization_name = :organization_name,
-     notes = :notes,
-     avatar_url = :avatar_url
-    where id = :id;
-  """
-  def get_telephones_by_contact_id_stmt = """
-    select
-      id,
-      type,
-      number
-    from telephone
-    where contact_id = :contact_id
-    order by index;
-  """
-  def insert_telephone_stmt = """
-    insert into telephone (
-      type,
-      number,
-      index,
-      contact_id
-    ) values (:type, :number, :index, :contact_id);
-  """
-  def update_telephone_stmt = """
-    update telephone set
-      type = :type,
-      number = :number
-      where
-      index = :index and contact_id = :contact_id;
-  """
-
-  def get_emails_by_contact_id_stmt = """
-    select
-      id,
-      type,
-      address
-    from email
-    where contact_id = :contact_id
-    order by index;
-  """
-  def insert_email_stmt = """
-    insert into email (
-      type,
-      address,
-      index,
-      contact_id
-    ) values (:type, :address, :index, :contact_id) ;
-  """
-  def update_email_stmt = """
-    update email set
-      type = :type,
-      address = :address
-      where
-      index = :index and
-      contact_id = :contact_id;
-  """
-
-  def get_addresses_by_contact_id_stmt = """
-    select
-      id,
-      type,
-      unit,
-      street,
-      locality,
-      region_code,
-      pobox,
-      postal_code,
-      country_code,
-      delivery_info
-    from address
-    where contact_id = :contact_id
-    order by index;
-  """
-  def insert_address_stmt = """
-    insert into address (
-      type,
-      unit,
-      street,
-      locality,
-      region_code,
-      pobox,
-      postal_code,
-      country_code,
-      delivery_info,
-      index,
-      contact_id
-    ) values (:type, :unit, :street, :locality, :region_code, :pobox, :postal_code, :country_code, :delivery_info, :index, :contact_id) ;
-  """
-  def update_address_stmt = """
-    update address set
-      type = :type,
-      unit = :unit,
-      street = :street,
-      locality = :locality,
-      region_code = :region_code,
-      pobox = :pobox,
-      postal_code = :postaL_code,
-      country_code = :country_code,
-      delivery_info = :delivery_info
-      where
-      index = :index and
-      contact_id = :contact_id;
-  """
-
-  def archive_contact_stmt = """
-    update contact set archived = true where id=:id
-  """
-
-  def restore_contact_stmt = """
-    update contact set archived = false where id=:id
-  """
+  def stmt = [
+    select_all: """
+      select
+        id,
+        type_organization,
+        firstname,
+        lastname,
+        organization_name,
+        notes,
+        avatar_url
+      from contact where archived = false;
+    """,
+    insert_contact: """
+      insert into contact (
+        type_organization,
+        firstname,
+        lastname,
+        organization_name,
+        notes,
+        avatar_url
+        ) values (:type_organization, :firstname, :lastname, :organization_name, :notes, :avatar_url) ;
+    """,
+    get_contact_by_id: """
+      select
+        id,
+        type_organization,
+        firstname,
+        lastname,
+        organization_name,
+        notes,
+        avatar_url,
+        archived
+      from
+        contact where id = :contact_id;
+    """,
+    update_contact_by_id: """
+      update contact set
+       type_organization = :type_organization,
+       firstname = :firstname,
+       lastname = :lastname,
+       organization_name = :organization_name,
+       notes = :notes,
+       avatar_url = :avatar_url
+      where id = :id;
+    """,
+    get_telephones_by_contact_id: """
+      select
+        id,
+        type,
+        number
+      from telephone
+      where contact_id = :contact_id
+      order by index;
+    """,
+    insert_telephone: """
+      insert into telephone (
+        type,
+        number,
+        index,
+        contact_id
+      ) values (:type, :number, :index, :contact_id);
+    """,
+    update_telephone: """
+      update telephone set
+        type = :type,
+        number = :number
+        where
+        index = :index and contact_id = :contact_id;
+    """,
+    get_emails_by_contact_id: """
+      select
+        id,
+        type,
+        address
+      from email
+      where contact_id = :contact_id
+      order by index;
+    """,
+    insert_email_stmt: """
+      insert into email (
+        type,
+        address,
+        index,
+        contact_id
+      ) values (:type, :address, :index, :contact_id) ;
+    """,
+    update_email: """
+      update email set
+        type = :type,
+        address = :address
+        where
+        index = :index and
+        contact_id = :contact_id;
+    """,
+    get_addresses_by_contact_id: """
+      select
+        id,
+        type,
+        unit,
+        street,
+        locality,
+        region_code,
+        pobox,
+        postal_code,
+        country_code,
+        delivery_info
+      from address
+      where contact_id = :contact_id
+      order by index;
+    """,
+    insert_address: """
+      insert into address (
+        type, unit, street, locality, region_code, pobox, postal_code, country_code, delivery_info, index, contact_id
+      ) values (:type, :unit, :street, :locality, :region_code, :pobox, :postal_code, :country_code, :delivery_info, :index, :contact_id) ;
+    """,
+    update_address: """
+      update address set
+        type = :type,
+        unit = :unit,
+        street = :street,
+        locality = :locality,
+        region_code = :region_code,
+        pobox = :pobox,
+        postal_code = :postaL_code,
+        country_code = :country_code,
+        delivery_info = :delivery_info
+        where
+        index = :index and
+        contact_id = :contact_id;
+    """,
+    archive_contact: """
+      update contact set archived = true where id=:id
+    """,
+    restore_contact: """
+      update contact set archived = false where id=:id
+    """,
+    update_relation: """
+      update relation set
+        "left" = :left_contact,
+        "right" = :right_contact,
+        role = :role,
+        where id = :id
+    ;
+    """,
+    insert_relation: """
+      insert into relation (
+        "left",
+        "right",
+        role
+      ) values (
+        :left_contact,
+        :right_contact,
+        :role
+      );
+    """,
+    get_relation_by_contact: """
+      select
+        "left",
+        "right",
+        role,
+        id
+      from relation where
+      "left" = :contact_id OR
+      "right" = :contact_id;
+    """
+  ]
 
   def listContacts() {
-    withSql { sql -> sql.rows(select_all_stmt)  }
+    withSql { sql -> sql.rows(stmt.select_all)  }
   }
 
   def addContact(Contact contact){
     withSql { sql ->
-      def res = sql.executeInsert(insert_stmt, contact)
+      def res = sql.executeInsert(stmt.insert_contact, contact)
       new Contact(sql.firstRow(get_contact_by_id_stmt, [contact_id: res[0][0]]))
     }
   }
 
   def getContact(Long contact_id){
     withSql { sql ->
-      def contact = new Contact(sql.firstRow(get_contact_by_id_stmt, [contact_id: contact_id]))
+      def contact = getContact(sql, contact_id)
       if(!contact){
         throw new Exception("Contact not found")
       }
       contact.telephones = getContactTelephones(sql, contact_id)
       contact.emails = getContactEmails(sql, contact_id)
       contact.addresses = getContactAddresses(sql, contact_id)
+      contact.relations = getContactRelations(sql, contact_id)
+
       contact
     }
   }
+  def getContact(sql, long contact_id){
+    new Contact(sql.firstRow(stmt.get_contact_by_id, [contact_id: contact_id]))
+  }
   def updateContact(Long contact_id, Contact contact){
     withSql { sql ->
-      def nb_rows_updated = sql.executeUpdate(update_contact_by_id_stmt, contact)
+      def nb_rows_updated = sql.executeUpdate(stmt.update_contact_by_id, contact)
 
       if(nb_rows_updated > 0){
         updateContactTelephones(sql, contact_id, contact.telephones)
         updateContactEmails(sql, contact_id, contact.emails)
         updateContactAddresses(sql, contact_id, contact.addresses)
+        updateRelations(sql, contact_id, contact.relations)
       }
 
     }
   }
   def archive_contact(Long contact_id){
-    withSql { sql -> sql.executeUpdate(archive_contact_stmt, [contact_id: contact_id]) }
+    withSql { sql -> sql.executeUpdate(stmt.archive_contact, [contact_id: contact_id]) }
 
   }
   def restore_contact(Long contact_id){
-    withSql { sql -> sql.executeUpdate(restore_contact_stmt, [contact_id: contact_id]) }
+    withSql { sql -> sql.executeUpdate(stmt.restore_contact, [contact_id: contact_id]) }
   }
 
   def getContactTelephones(sql, long contact_id){
-    sql.rows(get_telephones_by_contact_id_stmt, [contact_id: contact_id]).collect({new Telephone(it)})
+    sql.rows(stmt.get_telephones_by_contact_id, [contact_id: contact_id]).collect({new Telephone(it)})
   }
 
   def updateContactTelephones(sql, long contact_id, telephones){
@@ -228,7 +251,7 @@ public class Repository {
       contact_id: contact_id,
       index: index
     ]
-    sql.executeUpdate(update_telephone_stmt, params)
+    sql.executeUpdate(stmt.update_telephone, params)
   }
   def insertContactTelephone(sql, contact_id, index, telephone){
     def params = [
@@ -238,11 +261,11 @@ public class Repository {
       contact_id: contact_id,
       index: index
     ]
-    sql.executeInsert(insert_telephone_stmt, params)
+    sql.executeInsert(stmt.insert_telephone, params)
   }
 
   def getContactEmails(sql, long contact_id){
-    sql.rows(get_emails_by_contact_id_stmt, [contact_id: contact_id]).collect({new Email(it)})
+    sql.rows(stmt.get_emails_by_contact_id, [contact_id: contact_id]).collect({new Email(it)})
   }
   def updateContactEmails(sql, long contact_id, emails){
     emails.eachWithIndex { email, index ->
@@ -261,7 +284,7 @@ public class Repository {
       address: email.address,
       type: email.type
     ]
-    sql.executeUpdate(update_email_stmt, params)
+    sql.executeUpdate(stmt.update_email, params)
   }
   def insertContactEmail(sql, contact_id, index, email){
     def params = [
@@ -271,12 +294,12 @@ public class Repository {
       address: email.address,
       type: email.type
     ]
-    sql.executeInsert(params, insert_email_stmt)
+    sql.executeInsert(params, stmt.insert_email)
   }
 
 
   def getContactAddresses(sql, long contact_id){
-    sql.rows(get_addresses_by_contact_id_stmt, [contact_id: contact_id]).collect({new Address(it)})
+    sql.rows(stmt.get_addresses_by_contact_id, [contact_id: contact_id]).collect({new Address(it)})
   }
   def updateContactAddresses(sql, long contact_id, addresses){
     addresses.eachWithIndex { address, index ->
@@ -288,10 +311,6 @@ public class Repository {
     }
   }
   def updateContactAddress(sql, contact_id, index, address){
-    // x = [a:1, b:2]
-    // y = [c:3, d:4]
-    //
-    // z = [*:x, *:y]
     def params = [
       type: address.type,
       unit: address.unit,
@@ -305,7 +324,7 @@ public class Repository {
       index: index,
       contact_id: contact_id
     ]
-    sql.executeUpdate(update_address_stmt, params)
+    sql.executeUpdate(stmt.update_address, params)
   }
   def insertContactAddress(sql, contact_id, index, address){
     def params = [
@@ -321,7 +340,44 @@ public class Repository {
       index: index,
       contact_id: contact_id
     ]
-    sql.executeInsert(insert_address_stmt, params)
+    sql.executeInsert(stmt.insert_address, params)
+  }
+
+  def getContactRelations(sql, long contact_id) {
+    def rows = sql.rows(stmt.get_relation_by_contact, [contact_id: contact_id])
+    rows.collect({ row ->
+      new Relation([
+        id: row.id,
+        other: getContact(sql, contact_id == row.left ? row.left : row.right),
+        role: row.role
+      ])
+    })
+  }
+  def updateRelations(sql, contact_id, relations){
+    relations.each { relation ->
+      if(relation.id){
+        updateRelation(sql, contact_id, relation)
+      } else {
+        insertRelation(sql, contact_id, relation)
+      }
+    }
+  }
+  def updateRelation(sql, contact_id, relation){
+    def params = [
+      id: relation.id,
+      left_contact: relation.other,
+      right_contact: contact_id,
+      role: relation.role,
+    ]
+    sql.executeUpdate stmt.update_relation params
+  }
+  def insertRelation(sql, contact_id, relation) {
+    def params = [
+      left_contact: relation.other.id,
+      right_contact: contact_id,
+      role: relation.role,
+    ]
+    sql.executeInsert(stmt.insert_relation, params)
   }
 
   def withSql(closure){
@@ -334,6 +390,4 @@ public class Repository {
       sql?.close()
     }
   }
-
-
 }
