@@ -1,0 +1,48 @@
+<html>
+  <head th:include="head">
+
+  </head>
+  <body>
+    <div class="ui container">
+      <div class="ui grid">
+        <div class="row">
+          <div class="ui hidden divider"></div>
+        </div>
+        <div class="three wide column">
+
+          <div th:include="menu"></div>
+        </div>
+
+        <div class="ten wide column centered">
+          <h1 class="ui header" th:text="${list.name}"/>
+
+          <h3 class="ui header">
+            <span th:text="${list.members.size()} "></span>
+            Members
+          </h3>
+
+            <ul>
+              <li th:each="member : ${list.members}">
+                <div class="ui label" th:text="{member.name}">
+
+                </div>
+              </li>
+            </ul>
+
+            <div class="ui default button" >
+              Get extract
+            </div>
+            <a th:href="@{/lists/{list_id}/edit(list_id=${list.id})}">
+              <div class="ui default button">
+                Edit
+              </div>
+            </a>
+
+        </div>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

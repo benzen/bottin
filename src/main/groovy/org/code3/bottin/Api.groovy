@@ -1,6 +1,8 @@
 package org.code3.bottin
 
+import groovy.json.JsonBuilder
 import javax.servlet.http.HttpServletResponse
+import org.code3.bottin.repository.ContactRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -9,21 +11,19 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
-import groovy.json.JsonBuilder
-
 @RestController
 @RequestMapping("/api/contacts")
 public class Api {
 
   @Autowired
-  Repository repository
+  ContactRepository contactRepository
 
   @Autowired
   SearchIndex searchIndex
 
   @RequestMapping(value="", method = RequestMethod.GET, produces="application/json")
   def listContact(){
-    def contacts = repository.listContacts()
+    def contacts = contactRepository.listContacts()
     new JsonBuilder(contacts).toString()
   }
 
@@ -33,7 +33,7 @@ public class Api {
                  @RequestParam("lastname") String lastname,
                  @RequestParam("organization_name") String organization_name,
                  @RequestParam("notes") String notes){
-     def saved_contact = repository.addContact(type, firstname, lastname, organization_name, notes)
+     def saved_contact = contactRepository.addContact(type, firstname, lastname, organization_name, notes)
      searchIndex.indexContact(saved_contact)
      new JsonBuilder(saved_contact).toString()
   }

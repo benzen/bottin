@@ -1,0 +1,36 @@
+<html>
+  <head th:include="head">
+
+  </head>
+  <body>
+    <div class="ui container">
+      <div class="ui grid">
+        <div class="row">
+          <div class="ui hidden divider"></div>
+        </div>
+        <div class="three wide column">
+
+          <div th:include="menu"></div>
+        </div>
+
+        <div class="ten wide column centered">
+          <div  th:if="${#lists.isEmpty(lists)}" class="ui center aligned container">
+            <div class="ui disabled">Nobody created a list yet.</div>
+            <br/>
+            <a href="/lists/new">Create the first one !</a>
+          </div>
+
+          <div class="ui list">
+            <div class="item" th:each="item : ${items}">
+              <div class="content">
+                <a th:href="@{/lists/{listId}/show(listId=${list.id})}" th:text="${list.name}"></a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>

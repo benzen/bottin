@@ -1,17 +1,33 @@
-package org.code3.bottin
+package org.code3.bottin.repository
 
 import groovy.sql.Sql
 import javax.sql.DataSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.sql.Statement
+import org.code3.bottin.Relation
+import org.code3.bottin.Address
+import org.code3.bottin.Email
+import org.code3.bottin.Telephone
+import org.code3.bottin.Contact
 import groovy.sql.Sql
 
 @Service
-public class Repository {
+public class ContactRepository {
 
   @Autowired
   DataSource datasource
+
+  def withSql(closure){
+    def sql
+    try{
+      sql =  new Sql(datasource.getConnection())
+      closure(sql)
+    }
+    finally {
+      sql?.close()
+    }
+  }
 
   def stmt = [
     select_all: """
@@ -149,14 +165,8 @@ public class Repository {
     restore_contact: """
       update contact set archived = false where id=:id
     """,
-    update_relation: """
-      update relation set
-        "left" = :left_contact,
-        "right" = :right_contact,
-        role = :role,
-        where id = :id
-    ;
-    """,
+    // update_relation: """update relation set "left" = :left_contact, "right" = :right_contact, role = :role where id = :id;""",
+    update_relation: """update relation set role = ?, "left" = ? "right" = ? where id = ?""",
     insert_relation: """
       insert into relation (
         "left",
@@ -183,14 +193,12 @@ public class Repository {
   def listContacts() {
     withSql { sql -> sql.rows(stmt.select_all)  }
   }
-
   def addContact(Contact contact){
     withSql { sql ->
       def res = sql.executeInsert(stmt.insert_contact, contact)
       new Contact(sql.firstRow(get_contact_by_id_stmt, [contact_id: res[0][0]]))
     }
   }
-
   def getContact(Long contact_id){
     withSql { sql ->
       def contact = getContact(sql, contact_id)
@@ -232,7 +240,6 @@ public class Repository {
   def getContactTelephones(sql, long contact_id){
     sql.rows(stmt.get_telephones_by_contact_id, [contact_id: contact_id]).collect({new Telephone(it)})
   }
-
   def updateContactTelephones(sql, long contact_id, telephones){
     //Telphones will contains new and old telephones entities
     telephones.eachWithIndex { telephone, index ->
@@ -296,7 +303,6 @@ public class Repository {
     ]
     sql.executeInsert(params, stmt.insert_email)
   }
-
 
   def getContactAddresses(sql, long contact_id){
     sql.rows(stmt.get_addresses_by_contact_id, [contact_id: contact_id]).collect({new Address(it)})
@@ -364,10 +370,10 @@ public class Repository {
   }
   def updateRelation(sql, contact_id, relation){
     def params = [
-      id: relation.id,
-      left_contact: relation.other,
-      right_contact: contact_id,
-      role: relation.role,
+      relation.id,
+      relation.other,
+      contact_id,
+      relation.role
     ]
     sql.executeUpdate stmt.update_relation params
   }
@@ -378,16 +384,5 @@ public class Repository {
       role: relation.role,
     ]
     sql.executeInsert(stmt.insert_relation, params)
-  }
-
-  def withSql(closure){
-    def sql
-    try{
-      sql =  new Sql(datasource.getConnection())
-      closure(sql)
-    }
-    finally {
-      sql?.close()
-    }
   }
 }

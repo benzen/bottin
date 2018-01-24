@@ -10,9 +10,9 @@ public class Contact {
   String avatar_url
   boolean archived
 
-  List<Telephone>  telephones
-  List<Email> emails
-  List<Address> addresses
-  List<Relation> relations
+  java.util.List<Telephone>  telephones
+  java.util.List<Email> emails
+  java.util.List<Address> addresses
+  java.util.List<Relation> relations
 
 }

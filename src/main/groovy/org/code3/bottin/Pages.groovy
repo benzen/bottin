@@ -2,20 +2,28 @@ package org.code3.bottin
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.ui.ModelMap
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+
+import org.code3.bottin.repository.ListRepository
+import org.code3.bottin.repository.ContactRepository
+
+import org.code3.bottin.List
 
 
 @Controller
 class Pages {
 
   @Autowired
-  Repository repository
+  ContactRepository contactRepository
+
+  @Autowired
+  ListRepository listRepository
 
   @Autowired
   SearchIndex searchIndex
@@ -30,7 +38,7 @@ class Pages {
     def contactsSearch = searchIndex.searchContact("*")
     def contacts = contactsSearch.collect {it.document}
 
-    model.addAttribute("contacts", contacts)
+    model.addAttribute("/contacts", contacts)
     return "contacts/list"
   }
 
@@ -52,14 +60,14 @@ class Pages {
 
   @PostMapping("/contacts/add")
   def contact_create(@ModelAttribute("contact") Contact contact){
-    def saved_contact = repository.addContact(contact)
+    def saved_contact = contactRepository.addContact(contact)
     searchIndex.indexContact(saved_contact)
     "redirect:/"
   }
 
   @GetMapping("/contacts/{contact_id}/show")
   def contact_show(ModelMap modelmap, @PathVariable Long contact_id){
-    def contact = repository.getContact(contact_id)
+    def contact = contactRepository.getContact(contact_id)
     modelmap.addAttribute("contact", contact)
     "contacts/show"
 
@@ -67,7 +75,7 @@ class Pages {
 
   @GetMapping("/contacts/{contact_id}/edit")
   def contact_edit(ModelMap modelMap, @PathVariable Long contact_id, @RequestParam(value="add", required=false) String addField){
-    def contact = repository.getContact(contact_id)
+    def contact = contactRepository.getContact(contact_id)
 
     if(addField == "telephone"){
       contact.telephones = contact.telephones ?: []
@@ -91,7 +99,7 @@ class Pages {
   @PostMapping("/contacts/{contact_id}/update")
   def contact_update(ModelMap modelMap, @PathVariable long contact_id, @ModelAttribute("contact") Contact contact, RedirectAttributes redirectAttributes){
     try{
-      repository.updateContact(contact_id, contact)
+      contactRepository.updateContact(contact_id, contact)
       searchIndex.unindex(contact_id)
       searchIndex.indexContact(contact)
       "redirect:/contacts/$contact_id/show"
@@ -106,10 +114,10 @@ class Pages {
 
   }
 
-  @GetMapping("contacts/{contact_id}/delete")
+  @GetMapping("/contacts/{contact_id}/delete")
   def contact_delete(ModelMap modelMap, @PathVariable long contact_id, RedirectAttributes redirectAttributes){
     try{
-      repository.archive_contact(contact_id)
+      contactRepository.archive_contact(contact_id)
       modelMap.addAttribute("deletedContact", contact_id)
       searchIndex.unindex(contact_id)
       "redirect:/contacts/list"
@@ -122,11 +130,11 @@ class Pages {
 
   }
 
-  @GetMapping("contacts/{contact_id}/restore")
+  @GetMapping("/contacts/{contact_id}/restore")
   def contact_restore(ModelMap modelMap, @PathVariable long contact_id, RedirectAttributes redirectAttributes){
     try{
-      repository.restore_contact(contact_id)
-      def contact = repository.getContact(contact_id)
+      contactRepository.restore_contact(contact_id)
+      def contact = contactRepository.getContact(contact_id)
       searchIndex.indexContact(contact)
       "redirect:/contacts/$contact_id/show"
     } catch (Exception e) {
@@ -135,6 +143,30 @@ class Pages {
       redirectAttributes.addFlashAttribute("error", "Failed to restore contact")
       "redirect:/contacts/$contact_id/show"
     }
+  }
+
+  @GetMapping("/lists/list")
+  def lists_list(){
+    "lists/list"
+  }
+
+  @GetMapping("/lists/new")
+  def lists_new(ModelMap model){
+    model.addAttribute("list", new List())
+    "lists/new"
+  }
+
+  @PostMapping("/lists/add")
+  def lists_create(@ModelAttribute("list") List list){
+    def savedList = listRepository.addList(list)
+    "redirect:/lists/$savedList.id/show"
+  }
+
+  @GetMapping("/lists/{list_id}/show")
+  def list_show(ModelMap modelMap, @PathVariable Long list_id){
+    def list = listRepository.getListById(list_id)
+    modelMap.addAttribute("list", list)
+    "lists/show"
   }
 
 
