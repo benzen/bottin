@@ -17,7 +17,7 @@
           <h1 class="ui header" th:text="${list.name}"/>
 
           <div class="ui right floated buttons">
-            <a th:href="@{/lists/{listId}/extract(listId=${list.id})}" class="ui primary icon button" >
+            <a th:href="@{/lists/{listId}/extract(listId=${list.id})}" class="ui primary icon button" data-turbolinks="false">
               <i class="ui icon file excel outline"/>
             </a>
             <a th:href="@{/lists/{listId}/edit(listId=${list.id})}">

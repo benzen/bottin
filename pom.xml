@@ -60,6 +60,13 @@
         <version>9.4-1206-jdbc42</version>
       </dependency>
 
+      <dependency>
+          <groupId>org.apache.poi</groupId>
+          <artifactId>poi</artifactId>
+          <version>3.17</version>
+      </dependency>
+
+
     </dependencies>
     <build>
     <plugins>
