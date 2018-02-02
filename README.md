@@ -1,7 +1,13 @@
+
 Build
 -----------
 
     mvn clean package
+
+Before first run
+---------------
+
+Create a bd called `bottin` into you local postgres installation
 
 Run
 -----------
