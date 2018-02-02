@@ -1,0 +1,83 @@
+<html>
+  <head th:include="head">
+
+  </head>
+  <body>
+    <div class="ui container">
+      <div class="ui grid">
+        <div class="row">
+          <div class="ui hidden divider"></div>
+        </div>
+        <div class="three wide column">
+
+          <div th:include="menu"></div>
+        </div>
+
+        <div class="ten wide column centered">
+
+        <h1 th:text="${list.name}"/>
+
+        <form class="ui form" th:action="@{/lists/{listId}/search(listId=${list.id})}" method="POST" th:object="${list}">
+          <div class="ui icon input fluid">
+            <i class="search icon"></i>
+            <input type="text" id="query" name="query" placeholder="Search contact..."/>
+          </div>
+        </form>
+
+          <div class="ui hidden divider"></div>
+
+          <div class="row">
+            <h3>Results</h3>
+
+            <div class="ui list">
+              <div class="item" th:each="contact : ${searchResults}">
+                <img class="ui avatar image" style="height: 50px; width: 50px" th:with="url=${#strings.defaultString(contact.avatar_url, '/assets/images/avatars/default.png')}" th:src="@{${url}}" />
+                <div class="content">
+                  <a th:if="${contact.type_organization}" th:href="@{/contacts/{contactId}/show(contactId=${contact.id})}" th:text="${contact.organization_name}"></a>
+                  <a th:unless="${contact.type_organization}" class="header" th:href="@{/contacts/{contactId}/show(contactId=${contact.id})}">
+                    <span th:text="${contact.firstname}"></span>&nbsp;
+                    <span th:text="${contact.lastname}"></span>
+                  </a>
+                </div>
+                <a th:href="@{/lists/{listId}/add/{contactId}(listId=${list.id}, contactId=${contact.id})}" class="ui right floated">
+                  <div class="ui button circular icon">
+                    <i class="ui icon plus"/>
+                  </div>
+                </a>
+              </div>
+            </div>
+            <div th:if="${#lists.isEmpty(searchResults)}" class="ui center aligned container">
+              <div class="ui disabled">Search for more contact to add to this list!</div>
+            </div>
+          </div>
+          <div class="ui divider"></div>
+
+          <div class="row">
+
+            <h3>Members</h3>
+
+            <div class="ui list">
+              <div class="item" th:each="contact : ${list.members}">
+                <img class="ui avatar image" style="height: 50px; width: 50px" th:with="url=${#strings.defaultString(contact.avatar_url, '/assets/images/avatars/default.png')}" th:src="@{${url}}" />
+                <div class="content">
+                  <a th:if="${contact.type_organization}" th:href="@{/contacts/{contactId}/show(contactId=${contact.id})}" th:text="${contact.organization_name}"></a>
+                  <a th:unless="${contact.type_organization}" class="header" th:href="@{/contacts/{contactId}/show(contactId=${contact.id})}">
+                    <span th:text="${contact.firstname}"></span>&nbsp;
+                    <span th:text="${contact.lastname}"></span>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div th:if="${#lists.isEmpty(list.members)}" class="ui center aligned container">
+              <div class="ui disabled">This list doesn't contains any member yet.</div>
+            </div>
+          </div>
+
+        </div>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

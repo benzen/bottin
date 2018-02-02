@@ -16,27 +16,40 @@
         <div class="ten wide column centered">
           <h1 class="ui header" th:text="${list.name}"/>
 
+          <div class="ui right floated buttons">
+            <a th:href="@{/lists/{listId}/extract(listId=${list.id})}" class="ui primary button" >
+              <i class="ui icon file excel outline"/>
+            </a>
+            <a th:href="@{/lists/{listId}/edit(listId=${list.id})}">
+              <div class="ui default button">
+                <i class="ui icon write"/>
+              </div>
+            </a>
+            <a th:href="@{/lists/{listId}/delete(listId=${list.id})}">
+              <div class="ui negative button">
+                <i class="ui icon trash"/>
+              </div>
+            </a>
+          </div>
+
+
           <h3 class="ui header">
             <span th:text="${list.members.size()} "></span>
             Members
           </h3>
 
-            <ul>
-              <li th:each="member : ${list.members}">
-                <div class="ui label" th:text="{member.name}">
-
+            <div class="ui list">
+              <div class="item" th:each="contact : ${list.members}">
+                <img class="ui avatar image" style="height: 50px; width: 50px" th:with="url=${#strings.defaultString(contact.avatar_url, '/assets/images/avatars/default.png')}" th:src="@{${url}}" />
+                <div class="content">
+                  <a th:if="${contact.type_organization}" th:href="@{/contacts/{contactId}/show(contactId=${contact.id})}" th:text="${contact.organization_name}"></a>
+                  <a th:unless="${contact.type_organization}" class="header" th:href="@{/contacts/{contactId}/show(contactId=${contact.id})}">
+                    <span th:text="${contact.firstname}"></span>&nbsp;
+                    <span th:text="${contact.lastname}"></span>
+                  </a>
                 </div>
-              </li>
-            </ul>
-
-            <div class="ui default button" >
-              Get extract
-            </div>
-            <a th:href="@{/lists/{list_id}/edit(list_id=${list.id})}">
-              <div class="ui default button">
-                Edit
               </div>
-            </a>
+            </div>
 
         </div>
 

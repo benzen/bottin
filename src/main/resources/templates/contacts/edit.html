@@ -76,15 +76,6 @@
             <div th:each="address,rowStat : *{addresses}">
               <div class="row fields">
                 <input type="hidden" th:field="*{addresses[__${rowStat.index}__].id}"/>
-                <!-- <div class="ui selection dropdown">
-                  <input type="hidden" th:field="*{addresses[__${rowStat.index}__].type}"/>
-                  <i class="dropdown icon"></i>
-                  <div class="default text">Type</div>
-                  <div class="menu">
-                    <div class="item" data-value="H">Home</div>
-                    <div class="item" data-value="W">Work</div>
-                  </div>
-                </div> -->
               </div>
 
               <div class="field">

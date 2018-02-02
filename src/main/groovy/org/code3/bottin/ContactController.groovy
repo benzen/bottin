@@ -17,13 +17,10 @@ import org.code3.bottin.List
 
 
 @Controller
-class Pages {
+class ContactController {
 
   @Autowired
   ContactRepository contactRepository
-
-  @Autowired
-  ListRepository listRepository
 
   @Autowired
   SearchIndex searchIndex
@@ -144,32 +141,5 @@ class Pages {
       "redirect:/contacts/$contact_id/show"
     }
   }
-
-  @GetMapping("/lists/list")
-  def lists_list(ModelMap model){
-    def lists = listRepository.listLists()
-    model.addAttribute("lists", lists)
-    "lists/list"
-  }
-
-  @GetMapping("/lists/new")
-  def lists_new(ModelMap model){
-    model.addAttribute("list", new List())
-    "lists/new"
-  }
-
-  @PostMapping("/lists/add")
-  def lists_create(@ModelAttribute("list") List list){
-    def savedList = listRepository.addList(list)
-    "redirect:/lists/$savedList.id/show"
-  }
-
-  @GetMapping("/lists/{list_id}/show")
-  def list_show(ModelMap modelMap, @PathVariable Long list_id){
-    def list = listRepository.getListById(list_id)
-    modelMap.addAttribute("list", list)
-    "lists/show"
-  }
-
 
 }
