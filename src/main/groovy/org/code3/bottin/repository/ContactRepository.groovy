@@ -166,7 +166,14 @@ public class ContactRepository {
       update contact set archived = false where id=:id
     """,
     // update_relation: """update relation set "left" = :left_contact, "right" = :right_contact, role = :role where id = :id;""",
-    update_relation: """update relation set role = ?, "left" = ? "right" = ? where id = ?""",
+    update_relation: """
+      update relation set
+        "role" = :role_description,
+        "left" = :left_contact,
+        "right" = :righ_contact
+      where
+        id = :relation_id;
+    """,
     insert_relation: """
       insert into relation (
         "left",
@@ -196,7 +203,7 @@ public class ContactRepository {
   def addContact(Contact contact){
     withSql { sql ->
       def res = sql.executeInsert(stmt.insert_contact, contact)
-      new Contact(sql.firstRow(get_contact_by_id_stmt, [contact_id: res[0][0]]))
+      new Contact(sql.firstRow(stmt.get_contact_by_id, [contact_id: res[0][0]]))
     }
   }
   def getContact(Long contact_id){
@@ -370,12 +377,12 @@ public class ContactRepository {
   }
   def updateRelation(sql, contact_id, relation){
     def params = [
-      relation.id,
-      relation.other,
-      contact_id,
-      relation.role
+      relation_id: relation.id,
+      left_contact: relation.other.id,
+      right_contact: contact_id,
+      role: relation.role
     ]
-    sql.executeUpdate stmt.update_relation params
+    sql.executeUpdate(stmt.update_relation, params)
   }
   def insertRelation(sql, contact_id, relation) {
     def params = [
