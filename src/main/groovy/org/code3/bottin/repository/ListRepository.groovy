@@ -27,17 +27,18 @@ class ListRepository {
 
   def stmt = [
     insert_list: "insert into list (name) values (:name);",
-    get_list_by_id: "select name, id from list where id = :id ;",
+    get_list_by_id: "select name, id from list where id = :id;",
     get_members_by_list_id : "select list_id, contact_id from list_members where list_id = :id;",
     update_list_by_id: "update list set name = :name where list_id =:id;",
     update_members: "update list_members contact_id = :contact_id where id = :id;",
-    insert_member: "insert into list_members (list_id, contact_id ) values (:list_id, :contact_id)",
-    select_all: "select id, name from list;",
-
+    insert_member: "insert into list_members (list_id, contact_id ) values (:list_id, :contact_id);",
+    select_all: "select id, name from list where archived = false;",
+    archive_list: "update list set archived = true where id = :list_id;",
+    restore_list: "update list set archived = false where id = :list_id;",
   ]
-  def getListById(id){
+  def getList(id){
     withSql { sql ->
-      def list = getList (sql, id)
+      def list = getList(sql, id)
       list.members = getMembers(sql, id)
       list
     }
@@ -63,6 +64,16 @@ class ListRepository {
   def addMemberToList(listId, contactId){
     withSql { sql ->
       sql.executeInsert(stmt.insert_member, [list_id: listId, contact_id: contactId])
+    }
+  }
+  def archiveList(listId){
+    withSql { sql ->
+      sql.executeUpdate(stmt.archive_list, [list_id: listId])
+    }
+  }
+  def restoreList(listId){
+    withSql { sql ->
+      sql.executeUpdate(stmt.restore_list, [list_id: listId])
     }
   }
 }

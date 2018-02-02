@@ -49,7 +49,7 @@ class ListController {
 
   @GetMapping("/lists/{list_id}/show")
   def list_show(ModelMap modelMap, @PathVariable Long list_id){
-    def list = listRepository.getListById(list_id)
+    def list = listRepository.getList(list_id)
     list.members = list.members.collect({ contactRepository.getContact(it) })
     modelMap.addAttribute("list", list)
     "lists/show"
@@ -72,13 +72,19 @@ class ListController {
 
   @GetMapping("/lists/{list_id}/edit")
   def list_edit(ModelMap modelMap, @PathVariable Long list_id){
-    def list = listRepository.getListById(list_id)
+    def list = listRepository.getList(list_id)
     list.members = list.members.collect({ contactRepository.getContact(it) })
     modelMap.addAttribute("list", list)
     "lists/edit"
   }
 
+  @GetMapping("/lists/{listId}/delete")
+  def list_delete(@PathVariable Long listId, RedirectAttributes redirectAttributes){
+    listRepository.archiveList(listId)
+    redirectAttributes.addAttribute("archivedList", listId)
+    "redirect:/lists/list"
 
+  }
 
 
 }
