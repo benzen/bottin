@@ -35,7 +35,7 @@ class ContactController {
     def contactsSearch = searchIndex.searchContact("*")
     def contacts = contactsSearch.collect {it.document}
 
-    model.addAttribute("/contacts", contacts)
+    model.addAttribute("contacts", contacts)
     return "contacts/list"
   }
 
