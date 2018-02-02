@@ -21,7 +21,7 @@
           </div>
 
           <div class="ui list">
-            <div class="item" th:each="item : ${items}">
+            <div class="item" th:each="list : ${lists}">
               <div class="content">
                 <a th:href="@{/lists/{listId}/show(listId=${list.id})}" th:text="${list.name}"></a>
               </div>

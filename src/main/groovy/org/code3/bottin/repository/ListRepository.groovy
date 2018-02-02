@@ -32,6 +32,7 @@ class ListRepository {
     update_list_by_id: "update list set name = :name where list_id =:id;",
     update_members: "update list_members contact_id = :contact_id where id = :id, index = index;",
     insert_members: "insert into list_members values (list_id= :list_id, contact_id, index)",
+    select_all: "select id, name from list;"
 
   ]
   def getListById(id){
@@ -58,5 +59,7 @@ class ListRepository {
       new List(sql.firstRow(stmt.get_list_by_id, [id: res[0][0]]))
     }
   }
-
+  def listLists(){
+    withSql { sql -> sql.rows(stmt.select_all)  }
+  }
 }

@@ -146,7 +146,9 @@ class Pages {
   }
 
   @GetMapping("/lists/list")
-  def lists_list(){
+  def lists_list(ModelMap model){
+    def lists = listRepository.listLists()
+    model.addAttribute("lists", lists)
     "lists/list"
   }
 
