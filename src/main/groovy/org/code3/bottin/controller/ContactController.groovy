@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
-import org.code3.bottin.repository.ListRepository
-import org.code3.bottin.repository.ContactRepository
-
 import org.code3.bottin.List
 
 

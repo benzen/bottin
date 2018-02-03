@@ -1,4 +1,4 @@
-package org.code3.bottin.repository
+package org.code3.bottin
 
 import groovy.sql.Sql
 import groovy.sql.Sql

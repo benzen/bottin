@@ -1,4 +1,4 @@
-package org.code3.bottin.repository
+package org.code3.bottin
 
 import groovy.sql.Sql
 import javax.sql.DataSource
@@ -200,6 +200,7 @@ public class ContactRepository {
   def listContacts() {
     withSql { sql -> sql.rows(stmt.select_all)  }
   }
+
   def addContact(Contact contact){
     withSql { sql ->
       def res = sql.executeInsert(stmt.insert_contact, contact)
