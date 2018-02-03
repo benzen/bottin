@@ -72,6 +72,12 @@ class ListController {
     "redirect:/lists/$listId/edit"
   }
 
+  @GetMapping("/lists/{listId}/remove/{contactId}")
+  def list_rm_contact(@PathVariable Long listId, @PathVariable Long contactId){
+    listRepository.removeMemberFromList(listId, contactId)
+    "redirect:/lists/$listId/edit"
+  }
+
   @GetMapping("/lists/{list_id}/edit")
   def list_edit(ModelMap modelMap, @PathVariable Long list_id){
     def list = listRepository.getList(list_id)

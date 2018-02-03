@@ -32,6 +32,7 @@ class ListRepository {
     update_list_by_id: "update list set name = :name where list_id =:id;",
     update_members: "update list_members contact_id = :contact_id where id = :id;",
     insert_member: "insert into list_members (list_id, contact_id ) values (:list_id, :contact_id);",
+    remove_member: "delete from list_members where list_id = :list_id and contact_id = :contact_id;",
     select_all: "select id, name from list where archived = false;",
     archive_list: "update list set archived = true where id = :list_id;",
     restore_list: "update list set archived = false where id = :list_id;",
@@ -66,6 +67,13 @@ class ListRepository {
       sql.executeInsert(stmt.insert_member, [list_id: listId, contact_id: contactId])
     }
   }
+
+  def removeMemberFromList(listId, contactId){
+    withSql { sql ->
+        sql.executeUpdate(stmt.remove_member, [list_id: listId, contact_id: contactId])
+    }
+  }
+
   def archiveList(listId){
     withSql { sql ->
       sql.executeUpdate(stmt.archive_list, [list_id: listId])

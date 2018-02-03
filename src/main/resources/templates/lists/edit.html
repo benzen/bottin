@@ -66,6 +66,12 @@
                     <span th:text="${contact.lastname}"></span>
                   </a>
                 </div>
+
+                <a th:href="@{/lists/{listId}/remove/{contactId}(listId=${list.id}, contactId=${contact.id})}" class="ui right floated">
+                  <div class="ui button circular icon">
+                    <i class="ui icon minus"/>
+                  </div>
+                </a>
               </div>
             </div>
             <div th:if="${#lists.isEmpty(list.members)}" class="ui center aligned container">
