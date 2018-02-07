@@ -1,0 +1,83 @@
+<html>
+  <head th:include="head">
+  </head>
+  <body>
+    <div class="ui container">
+      <div class="ui grid">
+        <div class="row">
+          <div class="ui hidden divider"></div>
+        </div>
+        <div class="three wide column">
+          <div th:include="menu"></div>
+        </div>
+
+        <div class="ten wide column centered">
+          <form class="ui form" action="/smartLists/add" method="POST" th:object="${smartList}">
+            <a href="@{/smartList/new?}">
+              <button class="ui icon button basic right floated">
+                <i class="ui icon plus"></i>
+              </button>
+            </a>
+
+            <div class="field">
+              <label>
+                Name
+              </label>
+              <input type="text" th:field="*{name}"/>
+            </div>
+
+            <div class="field">
+              <div class="ui checkbox">
+                <input type="checkbox" th:field="*{match_all_predicates}"/>
+                <label>Match all predicates</label>
+              </div>
+            </div>
+            <div class="ui grid">
+              <div class="ui row">
+                <div class="five wide column">
+                  <select class="ui dropdown">
+                    <option value="adressType">address type</option>
+                    <option value="adressStreet">address street</option>
+                    <option value="adressLocality">address locality</option>
+                  </select>
+                </div>
+                <div class="two wide column">
+                    <select class="ui dropdown">
+                      <option value="is">is</option>
+                      <option value="isnt">isn't</option>
+                      <option value="startWith">start with</option>
+                      <option value="endWith">end with</option>
+                    </select>
+                </div>
+                <div class="eight wide column">
+                  <input type="text" />
+                </div>
+                <div class="one wide column">
+                  <a th:href="@{/smartList/new?deletePred=1}">
+                    <div class="ui button icon">
+                      <i class="ui icon minus"></i>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="ui divider hidden"></div>
+
+            <button class="ui button basic left floated">
+              Cancel
+            </button>
+
+            <input class="ui button primary right floated" type="submit" value="Save"/>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+    <script>
+      $('checkbox').checkbox();
+      $('dropdown').dropdown();
+    </script>
+  </body>
+</html>

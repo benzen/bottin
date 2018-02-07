@@ -26,15 +26,9 @@ class ListController {
   @Autowired
   SearchIndex searchIndex
 
-  @GetMapping("/lists/list")
-  def lists_list(ModelMap model){
-    def lists = listRepository.listLists()
-    model.addAttribute("lists", lists)
-    "lists/list"
-  }
-
   @GetMapping("/lists/new")
   def lists_new(ModelMap model){
+    model.addAttribute("simpleLists", listRepository.listLists())
     model.addAttribute("list", new List())
     "lists/new"
   }
@@ -50,6 +44,7 @@ class ListController {
     def list = listRepository.getList(list_id)
     list.members = list.members.collect({ contactRepository.getContact(it) })
     modelMap.addAttribute("list", list)
+    modelMap.addAttribute("simpleLists", listRepository.listLists())
     "lists/show"
   }
 
@@ -79,6 +74,7 @@ class ListController {
     def list = listRepository.getList(list_id)
     list.members = list.members.collect({ contactRepository.getContact(it) })
     modelMap.addAttribute("list", list)
+    modelMap.addAttribute("simpleLists", listRepository.listLists())
     "lists/edit"
   }
 

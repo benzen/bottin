@@ -20,6 +20,9 @@ class ContactController {
   ContactRepository contactRepository
 
   @Autowired
+  ListRepository listRepository
+
+  @Autowired
   SearchIndex searchIndex
 
   @GetMapping("/")
@@ -33,6 +36,7 @@ class ContactController {
     def contacts = contactsSearch.collect {it.document}
 
     model.addAttribute("contacts", contacts)
+    model.addAttribute("simpleLists", listRepository.listLists())
     return "contacts/list"
   }
 
@@ -43,12 +47,14 @@ class ContactController {
     def contacts = contactsSearch.collect {it.document}
 
     model.addAttribute("contacts", contacts)
+    model.addAttribute("simpleLists", listRepository.listLists())
     return "contacts/list"
   }
 
   @GetMapping("/contacts/new")
   def contacts_new(ModelMap model){
     model.addAttribute("contact", new Contact())
+    model.addAttribute("simpleLists", listRepository.listLists())
     return "contacts/new"
   }
 
@@ -63,6 +69,7 @@ class ContactController {
   def contact_show(ModelMap modelmap, @PathVariable Long contact_id){
     def contact = contactRepository.getContact(contact_id)
     modelmap.addAttribute("contact", contact)
+    modelmap.addAttribute("simpleLists", listRepository.listLists())
     "contacts/show"
 
   }
@@ -113,6 +120,7 @@ class ContactController {
     try{
       contactRepository.archive_contact(contact_id)
       modelMap.addAttribute("deletedContact", contact_id)
+      model.addAttribute("simpleLists", listRepository.listLists())
       searchIndex.unindex(contact_id)
       "redirect:/contacts/list"
     } catch (Exception e) {

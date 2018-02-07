@@ -160,10 +160,10 @@ public class ContactRepository {
         contact_id = :contact_id;
     """,
     archive_contact: """
-      update contact set archived = true where id=:id
+      update contact set archived = true where id=:contact_id
     """,
     restore_contact: """
-      update contact set archived = false where id=:id
+      update contact set archived = false where id=:contact_id
     """,
     // update_relation: """update relation set "left" = :left_contact, "right" = :right_contact, role = :role where id = :id;""",
     update_relation: """

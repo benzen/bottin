@@ -1,0 +1,43 @@
+<html>
+  <head th:include="head">
+
+  </head>
+  <body>
+    <div class="ui container">
+      <div class="ui grid">
+        <div class="row">
+          <div class="ui hidden divider"></div>
+        </div>
+        <div class="three wide column">
+
+          <div th:include="menu"></div>
+        </div>
+
+        <div class="ten wide column centered">
+          <h1 class="ui header" th:text="${smartList.name}"/>
+
+          <div class="ui right floated buttons">
+            <a th:href="@{/smartLists/{listId}/extract(listId=${smartList.id})}" class="ui primary icon button" data-turbolinks="false">
+              <i class="ui icon file excel outline"/>
+            </a>
+            <a th:href="@{/smartLists/{listId}/edit(listId=${smartList.id})}">
+              <div class="ui default icon button">
+                <i class="ui icon write"/>
+              </div>
+            </a>
+            <a th:href="@{/smartLists/{listId}/delete(listId=${smartList.id})}">
+              <div class="ui negative icon button">
+                <i class="ui icon trash"/>
+              </div>
+            </a>
+          </div>
+
+
+        </div>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

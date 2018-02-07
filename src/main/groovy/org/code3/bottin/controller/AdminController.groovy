@@ -24,4 +24,20 @@ class AdminController{
 
   }
 
+  // @GetMapping("admin/test")
+  // def test(){
+  //   def smartList = new SmartList([
+  //     matchAllPredicates: false,
+  //     predicates: [
+  //       // new Predicate(field: "addressLocality", operator: "is", value: "Montréal"),
+  //       // new Predicate(field: "addressStreet", operator: "is", value: "adam street"),
+  //       new Predicate(field: "addressStreet", operator: "contains", value: "Adam"),
+  //     ],
+  //   ])
+  //
+  //   def conv = new SmartListConverter()
+  //   def sql = conv.smartListToSql(smartList)
+  //   println sql
+  // }
+
 }

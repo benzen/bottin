@@ -4,11 +4,6 @@
       <i class="icon plus"/> Add contact
     </a>
 
-    <a class="teal item" href="/lists/list">
-      <i class="icon browser"/>Lists
-    </a>
-
-
     <div class="item">
       <div class="ui transparent icon input">
         <form action="/contacts/search" method="POST" name="search">
@@ -17,6 +12,33 @@
             <input type="text" id="query" name="query" placeholder="Search contact..."/>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div class="item">
+      Simple Lists
+      <a th:href="@{/lists/new}">
+        <i class="ui icon plus"></i>
+      </a>
+      <div class="menu">
+        <div class="item">
+          <a href="/contacts/list">All</a>
+        </div>
+        <div class="item" th:each="list : ${simpleLists}">
+          <a th:href="@{/lists/{list_id}/show(list_id=${list.id})}" th:text="${list.name}"></a>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="item">
+      Smart Lists
+      <a th:href="@{/smartLists/new}">
+        <i class="ui icon plus"></i>
+      </a>
+      <div class="menu">
+
+
       </div>
     </div>
 
