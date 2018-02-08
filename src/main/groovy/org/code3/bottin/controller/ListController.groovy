@@ -24,32 +24,37 @@ class ListController {
   ContactRepository contactRepository
 
   @Autowired
+  SmartListRepository smartLisRepository
+
+  @Autowired
   SearchIndex searchIndex
 
   @GetMapping("/lists/new")
   def lists_new(ModelMap model){
     model.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("smartLists", smartLisRepository.getAll())
     model.addAttribute("list", new List())
     "lists/new"
   }
 
   @PostMapping("/lists/add")
-  def lists_create(@ModelAttribute("list") List list){
+  def create(@ModelAttribute("list") List list){
     def savedList = listRepository.addList(list)
     "redirect:/lists/$savedList.id/show"
   }
 
   @GetMapping("/lists/{list_id}/show")
-  def list_show(ModelMap modelMap, @PathVariable Long list_id){
+  def show(ModelMap model, @PathVariable Long list_id){
     def list = listRepository.getList(list_id)
     list.members = list.members.collect({ contactRepository.getContact(it) })
-    modelMap.addAttribute("list", list)
-    modelMap.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("list", list)
+    model.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("smartLists", smartLisRepository.getAll())
     "lists/show"
   }
 
   @PostMapping("/lists/{list_id}/search")
-  def list_show(ModelMap modelMap, @PathVariable Long list_id, @RequestParam("query") String query, RedirectAttributes redirectAttributes){
+  def search(ModelMap modelMap, @PathVariable Long list_id, @RequestParam("query") String query, RedirectAttributes redirectAttributes){
 
     def contactsSearch = searchIndex.searchContact(query)
     def searchResults = contactsSearch.collect {it.document}
@@ -58,42 +63,43 @@ class ListController {
   }
 
   @GetMapping("/lists/{listId}/add/{contactId}")
-  def list_add_contact(@PathVariable Long listId, @PathVariable Long contactId){
+  def add(@PathVariable Long listId, @PathVariable Long contactId){
     listRepository.addMemberToList(listId, contactId)
     "redirect:/lists/$listId/edit"
   }
 
   @GetMapping("/lists/{listId}/remove/{contactId}")
-  def list_rm_contact(@PathVariable Long listId, @PathVariable Long contactId){
+  def remove(@PathVariable Long listId, @PathVariable Long contactId){
     listRepository.removeMemberFromList(listId, contactId)
     "redirect:/lists/$listId/edit"
   }
 
   @GetMapping("/lists/{list_id}/edit")
-  def list_edit(ModelMap modelMap, @PathVariable Long list_id){
+  def edit(ModelMap model, @PathVariable Long list_id){
     def list = listRepository.getList(list_id)
     list.members = list.members.collect({ contactRepository.getContact(it) })
-    modelMap.addAttribute("list", list)
-    modelMap.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("list", list)
+    model.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("smartLists", smartLisRepository.getAll())
     "lists/edit"
   }
 
   @GetMapping("/lists/{listId}/delete")
-  def list_delete(@PathVariable Long listId, RedirectAttributes redirectAttributes){
+  def del(@PathVariable Long listId, RedirectAttributes redirectAttributes){
     listRepository.archiveList(listId)
     redirectAttributes.addAttribute("archivedList", listId)
     "redirect:/lists/list"
   }
 
   @GetMapping("/lists/{listId}/restore")
-  def list_restore(@PathVariable Long listId, RedirectAttributes redirectAttributes){
+  def restore(@PathVariable Long listId, RedirectAttributes redirectAttributes){
     listRepository.archiveList(listId)
     redirectAttributes.addAttribute("restoredList", listId)
     "redirect:/lists/list"
   }
 
   @GetMapping("/lists/{listId}/extract")
-  def list_extract(@PathVariable long listId, HttpServletResponse response){
+  def extract(@PathVariable long listId, HttpServletResponse response){
     def conf = [
       [header: "Firstname", getter: {contact -> contact.firstname}],
       [header: "Lastname", getter: {contact -> contact.lastname}],

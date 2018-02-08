@@ -37,8 +37,9 @@
         <i class="ui icon plus"></i>
       </a>
       <div class="menu">
-
-
+        <div class="item" th:each="smartList : ${smartLists}">
+          <a th:href="@{/smartLists/{smart_list_id}/show(smart_list_id=${smartList.id})}" th:text="${smartList.name}"></a>
+        </div>
       </div>
     </div>
 

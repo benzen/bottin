@@ -20,6 +20,7 @@ class SmartListController {
   @GetMapping("/smartLists/new")
   def newSmartList(ModelMap model){
     model.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("smartLists", smartLisRepository.getAll())
     model.addAttribute("smartList", new SmartList())
     "smartLists/new"
   }
@@ -31,11 +32,13 @@ class SmartListController {
   }
 
   @GetMapping("/smartLists/{id}/show")
-  def getSmartList(ModelMap modelMap, @PathVariable Long id){
+  def getSmartList(ModelMap model, @PathVariable Long id){
     def smartList = smartLisRepository.getSmartListById(id)
 
-    modelMap.addAttribute("smartList", smartList)
-    modelMap.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("smartList", smartList)
+    model.addAttribute("matchingContacts", [])
+    model.addAttribute("smartLists", smartLisRepository.getAll())
+    model.addAttribute("simpleLists", listRepository.listLists())
 
     "smartLists/show"
   }

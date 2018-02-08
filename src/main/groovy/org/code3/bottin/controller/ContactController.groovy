@@ -23,6 +23,9 @@ class ContactController {
   ListRepository listRepository
 
   @Autowired
+  SmartListRepository smartLisRepository
+
+  @Autowired
   SearchIndex searchIndex
 
   @GetMapping("/")
@@ -37,6 +40,7 @@ class ContactController {
 
     model.addAttribute("contacts", contacts)
     model.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("smartLists", smartLisRepository.getAll())
     return "contacts/list"
   }
 
@@ -55,6 +59,7 @@ class ContactController {
   def contacts_new(ModelMap model){
     model.addAttribute("contact", new Contact())
     model.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("smartLists", smartLisRepository.getAll())
     return "contacts/new"
   }
 
@@ -66,16 +71,17 @@ class ContactController {
   }
 
   @GetMapping("/contacts/{contact_id}/show")
-  def contact_show(ModelMap modelmap, @PathVariable Long contact_id){
+  def contact_show(ModelMap model, @PathVariable Long contact_id){
     def contact = contactRepository.getContact(contact_id)
-    modelmap.addAttribute("contact", contact)
-    modelmap.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("contact", contact)
+    model.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("smartLists", smartLisRepository.getAll())
     "contacts/show"
 
   }
 
   @GetMapping("/contacts/{contact_id}/edit")
-  def contact_edit(ModelMap modelMap, @PathVariable Long contact_id, @RequestParam(value="add", required=false) String addField){
+  def contact_edit(ModelMap model, @PathVariable Long contact_id, @RequestParam(value="add", required=false) String addField){
     def contact = contactRepository.getContact(contact_id)
 
     if(addField == "telephone"){
@@ -91,14 +97,16 @@ class ContactController {
       contact.relations =  contact.relations ?: []
       contact.relations.add(new Relation())
     }
-    modelMap.addAttribute("contact", contact)
+    model.addAttribute("contact", contact)
+    model.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("smartLists", smartLisRepository.getAll())
 
     "contacts/edit"
 
   }
 
   @PostMapping("/contacts/{contact_id}/update")
-  def contact_update(ModelMap modelMap, @PathVariable long contact_id, @ModelAttribute("contact") Contact contact, RedirectAttributes redirectAttributes){
+  def contact_update(@PathVariable long contact_id, @ModelAttribute("contact") Contact contact, RedirectAttributes redirectAttributes){
     try{
       contactRepository.updateContact(contact_id, contact)
       searchIndex.unindex(contact_id)
@@ -116,11 +124,12 @@ class ContactController {
   }
 
   @GetMapping("/contacts/{contact_id}/delete")
-  def contact_delete(ModelMap modelMap, @PathVariable long contact_id, RedirectAttributes redirectAttributes){
+  def contact_delete(ModelMap model, @PathVariable long contact_id, RedirectAttributes redirectAttributes){
     try{
       contactRepository.archive_contact(contact_id)
-      modelMap.addAttribute("deletedContact", contact_id)
+      model.addAttribute("deletedContact", contact_id)
       model.addAttribute("simpleLists", listRepository.listLists())
+      model.addAttribute("smartLists", smartLisRepository.getAll())
       searchIndex.unindex(contact_id)
       "redirect:/contacts/list"
     } catch (Exception e) {
@@ -133,7 +142,7 @@ class ContactController {
   }
 
   @GetMapping("/contacts/{contact_id}/restore")
-  def contact_restore(ModelMap modelMap, @PathVariable long contact_id, RedirectAttributes redirectAttributes){
+  def contact_restore(@PathVariable long contact_id, RedirectAttributes redirectAttributes){
     try{
       contactRepository.restore_contact(contact_id)
       def contact = contactRepository.getContact(contact_id)

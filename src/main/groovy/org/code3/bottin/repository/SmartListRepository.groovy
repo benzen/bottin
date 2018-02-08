@@ -26,25 +26,14 @@ class SmartListRepository {
   }
 
   def stmt = [
+    getAllSmartList: "select name, id from smart_list;",
     insertSmartList: "insert into smart_list (name) values (:name);",
-    getSmartListById: "select id, name from smart_list where id = :id;"
+    getSmartListById: "select id, name from smart_list where id = :id;",
   ]
-  // def getList(id){
-  //   withSql { sql ->
-  //     def list = getList(sql, id)
-  //     list.members = getMembers(sql, id)
-  //     list
-  //   }
-  // }
-  // def getList(sql, id){
-  //   new List(sql.firstRow(stmt.get_list_by_id, [id: id]))
-  // }
-  //
-  // def getMembers(sql, id){
-  //   sql
-  //   .rows(stmt.get_members_by_list_id, [id: id])
-  //   .collect({ it -> it.contact_id })
-  // }
+
+  def getAll(){
+    withSql { sql -> sql.rows(stmt.getAllSmartList)  }
+  }
   def addSmartList(smartList){
     withSql { sql ->
       def res = sql.executeInsert(stmt.insertSmartList, smartList)
@@ -57,29 +46,4 @@ class SmartListRepository {
       new SmartList(sql.firstRow(stmt.getSmartListById, [id: id]))
     }
   }
-  // def listLists(){
-  //   withSql { sql -> sql.rows(stmt.select_all)  }
-  // }
-  // def addMemberToList(listId, contactId){
-  //   withSql { sql ->
-  //     sql.executeInsert(stmt.insert_member, [list_id: listId, contact_id: contactId])
-  //   }
-  // }
-  //
-  // def removeMemberFromList(listId, contactId){
-  //   withSql { sql ->
-  //       sql.executeUpdate(stmt.remove_member, [list_id: listId, contact_id: contactId])
-  //   }
-  // }
-  //
-  // def archiveList(listId){
-  //   withSql { sql ->
-  //     sql.executeUpdate(stmt.archive_list, [list_id: listId])
-  //   }
-  // }
-  // def restoreList(listId){
-  //   withSql { sql ->
-  //     sql.executeUpdate(stmt.restore_list, [list_id: listId])
-  //   }
-  // }
-}
+  }

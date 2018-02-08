@@ -33,6 +33,24 @@
           </div>
 
 
+          <h3 class="ui header">
+            <span th:text="${matchingContacts.size()} "></span>
+            Members
+          </h3>
+
+            <div class="ui list">
+              <div class="item" th:each="contact : ${matchingContacts}">
+                <img class="ui avatar image" style="height: 50px; width: 50px" th:with="url=${#strings.defaultString(contact.avatar_url, '/assets/images/avatars/default.png')}" th:src="@{${url}}" />
+                <div class="content">
+                  <a th:if="${contact.type_organization}" th:href="@{/contacts/{contactId}/show(contactId=${contact.id})}" th:text="${contact.organization_name}"></a>
+                  <a th:unless="${contact.type_organization}" class="header" th:href="@{/contacts/{contactId}/show(contactId=${contact.id})}">
+                    <span th:text="${contact.firstname}"></span>&nbsp;
+                    <span th:text="${contact.lastname}"></span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
         </div>
 
 
