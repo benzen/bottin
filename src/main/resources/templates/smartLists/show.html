@@ -17,15 +17,15 @@
           <h1 class="ui header" th:text="${smartList.name}"/>
 
           <div class="ui right floated buttons">
-            <a th:href="@{/smartLists/{listId}/extract(listId=${smartList.id})}" class="ui primary icon button" data-turbolinks="false">
+            <a th:href="@{/smartLists/{smartListId}/extract(smartListId=${smartList.id})}" class="ui primary icon button" data-turbolinks="false">
               <i class="ui icon file excel outline"/>
             </a>
-            <a th:href="@{/smartLists/{listId}/edit(listId=${smartList.id})}">
+            <a th:href="@{/smartLists/{smartListId}/edit(smartListId=${smartList.id})}">
               <div class="ui default icon button">
                 <i class="ui icon write"/>
               </div>
             </a>
-            <a th:href="@{/smartLists/{listId}/delete(listId=${smartList.id})}">
+            <a th:href="@{/smartLists/{smartListId}/delete(smartListId=${smartList.id})}"  data-turbolinks="false">
               <div class="ui negative icon button">
                 <i class="ui icon trash"/>
               </div>

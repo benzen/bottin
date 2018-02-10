@@ -88,7 +88,7 @@ class ListController {
   def del(@PathVariable Long listId, RedirectAttributes redirectAttributes){
     listRepository.archiveList(listId)
     redirectAttributes.addAttribute("archivedList", listId)
-    "redirect:/lists/list"
+    "redirect:/"
   }
 
   @GetMapping("/lists/{listId}/restore")

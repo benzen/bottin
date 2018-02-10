@@ -26,9 +26,11 @@ class SmartListRepository {
   }
 
   def stmt = [
-    getAllSmartList: "select name, id from smart_list;",
-    insertSmartList: "insert into smart_list (name) values (:name);",
-    getSmartListById: "select id, name from smart_list where id = :id;",
+    getAllSmartList: "select id, name, archived from smart_list where archived is false;",
+    insertSmartList: "insert into smart_list (name, archived) values (:name, false);",
+    getSmartListById: "select id, name, archived from smart_list where id = :id;",
+    archiveSmartList: "update smart_list set archived = true where id = :id ;",
+    restoreSmartList: "update smart_list set archived = false where id = :id;",
   ]
 
   def getAll(){
@@ -38,7 +40,6 @@ class SmartListRepository {
     withSql { sql ->
       def res = sql.executeInsert(stmt.insertSmartList, smartList)
       new SmartList(sql.firstRow(stmt.getSmartListById, [id: res[0][0]]))
-
     }
   }
   def getSmartListById(Long id){
@@ -46,4 +47,14 @@ class SmartListRepository {
       new SmartList(sql.firstRow(stmt.getSmartListById, [id: id]))
     }
   }
+  def archiveSmartList(Long id){
+    withSql { sql ->
+      sql.executeUpdate(stmt.archiveSmartList, [id: id])
+    }
   }
+  def restoreSmartList(Long id){
+    withSql { sql ->
+      sql.executeUpdate(stmt.restoreSmartList, [id: id])
+    }
+  }
+}

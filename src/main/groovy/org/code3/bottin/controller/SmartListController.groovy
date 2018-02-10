@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 @Controller
 class SmartListController {
@@ -41,6 +42,20 @@ class SmartListController {
     model.addAttribute("simpleLists", listRepository.listLists())
 
     "smartLists/show"
+  }
+
+  @GetMapping("/smartLists/{id}/delete")
+  def archive(@PathVariable long id, RedirectAttributes redirectAttributes){
+    smartLisRepository.archiveSmartList(id)
+    redirectAttributes.addAttribute("archivedList", id)
+    "redirect:/"
+  }
+
+  @GetMapping("/smartLists/{id}/restore")
+  def restore(@PathVariable long id, RedirectAttributes redirectAttributes){
+    smartLisRepository.restoreSmartList(id)
+    redirectAttributes.addAttribute("restoredList", id)
+    "redirect:/smartLists/$id/show"
   }
 
 }
