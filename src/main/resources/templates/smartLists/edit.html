@@ -12,8 +12,9 @@
         </div>
 
         <div class="ten wide column centered">
-          <form class="ui form" action="/smartLists/add" method="POST" th:object="${smartList}">
-            <a href="@{/smartList/new?}">
+          <form class="ui form" th:action="@{/smartLists/{smartListId}/update(smartListId=${smartList.id})}" method="POST" th:object="${smartList}">
+            <input type="hidden" th:field="*{id}"/>
+            <a th:href="@{/smartLists/{smartListId}/edit?addPredicate=true(smartListId=${smartList.id})}">
               <button class="ui icon button basic right floated">
                 <i class="ui icon plus"></i>
               </button>
@@ -33,16 +34,17 @@
               </div>
             </div>
             <div class="ui grid">
-              <div class="ui row">
+              <div class="ui row" th:each="predicate,rowStat : *{predicates}">
+                <input type="hidden" th:field="*{predicates[__${rowStat.index}__].id}"/>
                 <div class="five wide column">
-                  <select class="ui dropdown">
+                  <select class="ui dropdown" th:field="*{predicates[__${rowStat.index}__].field}">
                     <option value="adressType">address type</option>
                     <option value="adressStreet">address street</option>
                     <option value="adressLocality">address locality</option>
                   </select>
                 </div>
                 <div class="two wide column">
-                    <select class="ui dropdown">
+                    <select class="ui dropdown" th:field="*{predicates[__${rowStat.index}__].operator}">
                       <option value="is">is</option>
                       <option value="isnt">isn't</option>
                       <option value="startWith">start with</option>
@@ -50,7 +52,7 @@
                     </select>
                 </div>
                 <div class="eight wide column">
-                  <input type="text" />
+                  <input type="text" th:field="*{predicates[__${rowStat.index}__].value}"/>
                 </div>
                 <div class="one wide column">
                   <a th:href="@{/smartList/new?deletePred=1}">

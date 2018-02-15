@@ -31,6 +31,35 @@ class SmartListRepository {
     getSmartListById: "select id, name, archived from smart_list where id = :id;",
     archiveSmartList: "update smart_list set archived = true where id = :id ;",
     restoreSmartList: "update smart_list set archived = false where id = :id;",
+    updateSmartList: "update smart_list set name = :name, match_all_predicates = :match_all_predicates where id = :id;",
+    updatePredicate: """
+      update predicate
+      set
+        field = :field,
+        operator = :operator,
+        value = :value,
+        smart_list_id = :smart_list_id,
+        index = :index
+      where id = :id
+    """,
+    insertPredicate: """
+      insert into predicate
+      (smart_list_id, index, field, operator, value)
+      values
+      (:smart_list_id, :index, :field, :operator, :value)
+    """,
+    getPredicatesBySmartListId: """
+      select
+        id,
+        field,
+        operator,
+        value
+      from
+        predicate
+      where
+        smart_list_id = :smart_list_id
+      order by index;
+    """,
   ]
 
   def getAll(){
@@ -44,7 +73,29 @@ class SmartListRepository {
   }
   def getSmartListById(Long id){
     withSql { sql ->
-      new SmartList(sql.firstRow(stmt.getSmartListById, [id: id]))
+      def smartList = new SmartList(sql.firstRow(stmt.getSmartListById, [id: id]))
+      smartList.predicates = getPredicatesBySmartListId(sql, id)
+      smartList
+    }
+  }
+  def updateSmartList(long id, smartList){
+    withSql { sql ->
+      def params = [
+        id: smartList.id,
+        name: smartList.name,
+        match_all_predicates: smartList.match_all_predicates
+      ]
+      sql.executeUpdate(stmt.updateSmartList, params)
+      def index = 0
+      smartList.predicates.each { predicate ->
+        if(predicate.id){
+          updatePredicate(sql, smartList, index, predicate)
+        } else {
+          insertPredicate(sql, smartList, index, predicate)
+        }
+        index++
+      }
+      index = 0
     }
   }
   def archiveSmartList(Long id){
@@ -56,5 +107,34 @@ class SmartListRepository {
     withSql { sql ->
       sql.executeUpdate(stmt.restoreSmartList, [id: id])
     }
+  }
+
+  def insertPredicate(sql, smartList, index, predicate){
+    def params = [
+      smart_list_id: smartList.id,
+      index: index,
+      field: predicate.field,
+      operator: predicate.operator,
+      value: predicate.value
+    ]
+    sql.executeInsert(stmt.insertPredicate, params)
+  }
+  def updatePredicate(sql, smartList, index, predicate){
+    def params = [
+      id: predicate.id,
+      smart_list_id: smartList.id,
+      index: index,
+      field: predicate.field,
+      operator: predicate.operator,
+      value: predicate.value,
+    ]
+    sql.executeUpdate(stmt.updatePredicate, params)
+  }
+
+  def getPredicatesBySmartListId(sql, smartListId){
+    def params = [
+      smart_list_id: smartListId
+    ]
+    sql.rows(stmt.getPredicatesBySmartListId, params).collect({ new Predicate(it)})
   }
 }
