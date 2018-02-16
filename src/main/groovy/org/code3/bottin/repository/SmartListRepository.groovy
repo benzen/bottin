@@ -28,7 +28,7 @@ class SmartListRepository {
   def stmt = [
     getAllSmartList: "select id, name, archived from smart_list where archived is false;",
     insertSmartList: "insert into smart_list (name, archived) values (:name, false);",
-    getSmartListById: "select id, name, archived from smart_list where id = :id;",
+    getSmartListById: "select id, name, archived, match_all_predicates from smart_list where id = :id;",
     archiveSmartList: "update smart_list set archived = true where id = :id ;",
     restoreSmartList: "update smart_list set archived = false where id = :id;",
     updateSmartList: "update smart_list set name = :name, match_all_predicates = :match_all_predicates where id = :id;",
