@@ -53,11 +53,11 @@ class SmartListConverter {
   def valueToSql(predicate){
     //TODO should also sql escape the value
     if(predicate.operator == "startWith"){
-      return "'$predicate.value%'"
+      return "$predicate.value%"
     } else if(predicate.operator == "endWith"){
-      return "'%$predicate.value'"
+      return "%$predicate.value"
     } else if(predicate.operator == "contains"){
-      return "'%$predicate.value%'"
+      return "%$predicate.value%"
     } else{
       "$predicate.value"
     }
