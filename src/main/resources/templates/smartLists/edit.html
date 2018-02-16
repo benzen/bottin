@@ -38,9 +38,12 @@
                 <input type="hidden" th:field="*{predicates[__${rowStat.index}__].id}"/>
                 <div class="five wide column">
                   <select class="ui dropdown" th:field="*{predicates[__${rowStat.index}__].field}">
+                    <option value="contactFirstName">contact firstname</option>
+                    <option value="contactLastName">contact lastname</option>
                     <option value="adressType">address type</option>
                     <option value="adressStreet">address street</option>
                     <option value="adressLocality">address locality</option>
+
                   </select>
                 </div>
                 <div class="two wide column">
@@ -55,7 +58,7 @@
                   <input type="text" th:field="*{predicates[__${rowStat.index}__].value}"/>
                 </div>
                 <div class="one wide column">
-                  <a th:href="@{/smartList/new?deletePred=1}">
+                  <a th:href="@{/smartList/new?deletePredicate={predicateIndex}(predicateIndex=${rowStat.index})}">
                     <div class="ui button icon">
                       <i class="ui icon minus"></i>
                     </div>

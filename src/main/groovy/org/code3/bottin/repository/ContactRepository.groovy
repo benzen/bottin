@@ -18,6 +18,9 @@ public class ContactRepository {
   @Autowired
   DataSource datasource
 
+  @Autowired
+  SmartListConverter smartListConverter
+
   def withSql(closure){
     def sql
     try{
@@ -63,6 +66,20 @@ public class ContactRepository {
         archived
       from
         contact where id = :contact_id;
+    """,
+    select_all_where_id_in: """
+      select
+        id,
+        type_organization,
+        firstname,
+        lastname,
+        organization_name,
+        notes,
+        avatar_url,
+        archived
+      from
+        contact where id = ANY(:contact_ids) and
+        archived = false;
     """,
     update_contact_by_id: """
       update contact set
@@ -199,6 +216,15 @@ public class ContactRepository {
 
   def listContacts() {
     withSql { sql -> sql.rows(stmt.select_all)  }
+  }
+  def getAllBySmartList(SmartList smartList){
+    withSql { sql ->
+      def sqlStmt = smartListConverter.smartListToSql(smartList)
+      def contactIds = sql.rows(sqlStmt).collect({(long) it.id}).toArray()
+
+      def params = [contact_ids: sql.connection.createArrayOf('integer', contactIds)]
+      sql.rows(stmt.select_all_where_id_in, params)
+    }
   }
 
   def addContact(Contact contact){
@@ -393,4 +419,6 @@ public class ContactRepository {
     ]
     sql.executeInsert(stmt.insert_relation, params)
   }
+
+
 }

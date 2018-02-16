@@ -1,5 +1,8 @@
 package org.code3.bottin
 
+import org.springframework.stereotype.Service
+
+@Service
 class SmartListConverter {
   def smartListToSql(SmartList smartList){
     def predicatesAsSql = smartList.predicates.collect({predicateToSql(it)})
@@ -9,14 +12,14 @@ class SmartListConverter {
         contact.id
       from
         contact
-      join address on
+      left join address on
         address.contact_id = contact.id
-      join telephone on
+      left join telephone on
         telephone.contact_id = contact.id
-      join email on
+      left join email on
         email.contact_id = contact.id
       where $preds;
-    """
+    """.toString()
   }
   def predicateToSql(Predicate predicate){
     "${fieldToSql(predicate)} ${operatorToSql(predicate)} '${valueToSql(predicate)}'"
@@ -26,6 +29,8 @@ class SmartListConverter {
       "addressType": "address.addressType",
       "addressStreet": "address.street",
       "addressLocality": "address.locality",
+      "contactFirstName": "contact.firstname",
+      "contactLastName": "contact.lastname",
     ]
     if(mapping[predicate.field] == null){
       throw new Exception("In smart list field \"$predicate.field\" is illegal")
@@ -48,13 +53,13 @@ class SmartListConverter {
   def valueToSql(predicate){
     //TODO should also sql escape the value
     if(predicate.operator == "startWith"){
-      return "$predicate.value%"
+      return "'$predicate.value%'"
     } else if(predicate.operator == "endWith"){
-      return "%$predicate.value"
+      return "'%$predicate.value'"
     } else if(predicate.operator == "contains"){
-      return "%$predicate.value%"
+      return "'%$predicate.value%'"
     } else{
-      str
+      "$predicate.value"
     }
   }
 }
