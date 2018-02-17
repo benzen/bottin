@@ -55,20 +55,28 @@ class SmartListController {
   }
 
   @GetMapping("/smartLists/{id}/edit")
-  def editSmartList(ModelMap model, @PathVariable Long id, @RequestParam(value="addPredicate", required=false) Boolean addPredicate){
+  def editSmartList(ModelMap model, @PathVariable Long id, @RequestParam(value="nbPredicateToAdd", required=false) Integer nbPredicateToAdd, @RequestParam(value="deletePredicate", required=false) Integer deletePredicate){
     def smartList = smartListRepository.getSmartListById(id)
 
     if(!smartList.predicates){
       smartList.predicates = []
     }
-    if(addPredicate){
-      smartList.predicates.push(new Predicate())
+    println "smartList.predicates ${smartList.predicates.size()} nbPredicateToAdd ${nbPredicateToAdd}"
+    if(nbPredicateToAdd !=  null){
+      nbPredicateToAdd.times {
+        smartList.predicates.push(new Predicate())
+      }
+    }
+
+    if(deletePredicate != null){
+      println "smartList.predicates ${smartList.predicates.size()}, deletePredicate ${deletePredicate}"
+      smartList.predicates.remove(deletePredicate)
     }
 
     model.addAttribute("smartList", smartList)
-
     model.addAttribute("smartLists", smartListRepository.getAll())
     model.addAttribute("simpleLists", listRepository.listLists())
+    model.addAttribute("nbPredicateToAdd", nbPredicateToAdd ?: 0)
 
     "smartLists/edit"
   }

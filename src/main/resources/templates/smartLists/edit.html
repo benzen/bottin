@@ -14,7 +14,7 @@
         <div class="ten wide column centered">
           <form class="ui form" th:action="@{/smartLists/{smartListId}/update(smartListId=${smartList.id})}" method="POST" th:object="${smartList}">
             <input type="hidden" th:field="*{id}"/>
-            <a th:href="@{/smartLists/{smartListId}/edit?addPredicate=true(smartListId=${smartList.id})}">
+            <a th:href="@{/smartLists/{smartListId}/edit?nbPredicateToAdd={nbPredicateToAdd}(smartListId=${smartList.id}, nbPredicateToAdd=${nbPredicateToAdd+1})}">
               <button class="ui icon button basic right floated">
                 <i class="ui icon plus"></i>
               </button>
@@ -58,7 +58,7 @@
                   <input type="text" th:field="*{predicates[__${rowStat.index}__].value}"/>
                 </div>
                 <div class="one wide column">
-                  <a th:href="@{/smartList/new?deletePredicate={predicateIndex}(predicateIndex=${rowStat.index})}">
+                  <a th:href="@{/smartLists/{smartListId}/edit(nbPredicateToAdd=${nbPredicateToAdd}, deletePredicate=${rowStat.index},smartListId=${smartList.id})}">
                     <div class="ui button icon">
                       <i class="ui icon minus"></i>
                     </div>
