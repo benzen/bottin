@@ -18,7 +18,9 @@ class SmartListConverter {
         telephone.contact_id = contact.id
       left join email on
         email.contact_id = contact.id
-      where $preds;
+      where
+        contact.archived = false  and
+        ($preds);
     """.toString()
   }
   def predicateToSql(Predicate predicate){

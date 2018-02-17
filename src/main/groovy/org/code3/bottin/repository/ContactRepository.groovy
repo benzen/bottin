@@ -65,7 +65,8 @@ public class ContactRepository {
         avatar_url,
         archived
       from
-        contact where id = :contact_id;
+        contact
+      where id = :contact_id;
     """,
     select_all_where_id_in: """
       select
@@ -224,6 +225,13 @@ public class ContactRepository {
 
       def params = [contact_ids: sql.connection.createArrayOf('integer', contactIds)]
       sql.rows(stmt.select_all_where_id_in, params)
+    }
+  }
+
+  def getIdsBySmartList(SmartList smartList){
+    withSql { sql ->
+      def sqlStmt = smartListConverter.smartListToSql(smartList)
+      sql.rows(sqlStmt).collect({(long) it.id}).toArray()
     }
   }
 

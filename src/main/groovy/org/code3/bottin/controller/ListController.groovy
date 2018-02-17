@@ -1,7 +1,6 @@
 package org.code3.bottin
 
 import javax.servlet.http.HttpServletResponse
-import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.code3.bottin.List
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
@@ -28,6 +27,9 @@ class ListController {
 
   @Autowired
   SearchIndex searchIndex
+
+  @Autowired
+  ExcelExtractor excelExtractor
 
   @GetMapping("/lists/new")
   def lists_new(ModelMap model){
@@ -100,53 +102,17 @@ class ListController {
 
   @GetMapping("/lists/{listId}/extract")
   def extract(@PathVariable long listId, HttpServletResponse response){
-    def conf = [
-      [header: "Firstname", getter: {contact -> contact.firstname}],
-      [header: "Lastname", getter: {contact -> contact.lastname}],
-      [header: "Organization", getter: {contact -> contact.organization_name}],
-      [header: "Email", getter: {contact -> contact?.emails ? contact?.emails[0]?.address : ""  }],
-    ]
-    def list = listRepository.getList(listId)
-    def members = list.members.collect({contactRepository.getContact(it)})
 
+    def list = listRepository.getList(listId)
+    def contacts = list.members.collect({contactRepository.getContact(it)})
 
     response.setHeader("Content-disposition", "attachment; filename=extract.xls")
     response.setContentType("application/vnd.ms-excel")
 
     def out = response.outputStream
-    exportMembersToExcelFile(conf, members, out)
+    excelExtractor.exportContactsToExcelFile(contacts, out)
     out.flush()
     out.close()
 
   }
-
-  private def exportMembersToExcelFile(conf, members, out){
-    def wb = new HSSFWorkbook()
-    def rowIndex = 0
-    def columnIndex = 0
-
-    def sheet = wb.createSheet("Extract")
-    def row = sheet.createRow(rowIndex)
-
-    conf.each { col ->
-      def cell = row.createCell(columnIndex)
-      cell.setCellValue(col.header)
-      columnIndex++
-    }
-
-    members.each { member ->
-      rowIndex++
-      columnIndex = 0
-      row = sheet.createRow(rowIndex)
-      conf.each { col ->
-        def cell = row.createCell(columnIndex)
-        cell.setCellValue(col.getter(member))
-        columnIndex++
-      }
-
-    }
-    wb.write(out)
-  }
-
-
 }
