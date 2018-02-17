@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service
 class SmartListConverter {
   def smartListToSql(SmartList smartList){
     def predicatesAsSql = smartList.predicates.collect({predicateToSql(it)})
-    def preds = predicatesAsSql.join( smartList.match_all_predicates ? " and " : " or " )
+    //Default value is added as simplest case where no pred is defined
+    def preds = predicatesAsSql.join( smartList.match_all_predicates ? " and " : " or " ) ?: false
     """
       select
         contact.id
@@ -20,7 +21,7 @@ class SmartListConverter {
         email.contact_id = contact.id
       where
         contact.archived = false  and
-        ($preds);
+        (${preds});
     """.toString()
   }
   def predicateToSql(Predicate predicate){
